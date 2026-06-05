@@ -1,7 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { TagResult, ItemCategory, ItemPattern, ItemFormality, ItemSeason, ItemWarmth } from "@/types/item";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const SYSTEM_PROMPT = `You are a fashion expert analyzing a single clothing item photo.
 Return ONLY a valid JSON object — no markdown, no prose, nothing else.
@@ -58,42 +58,35 @@ export async function tagClothingItem(
   imageBase64: string,
   mimeType: "image/jpeg" | "image/png" | "image/webp" | "image/gif"
 ): Promise<TagResult> {
-  const response = await client.messages.create({
-    model: "claude-opus-4-5",
+  const response = await client.chat.completions.create({
+    model: "meta-llama/llama-4-scout-17b-16e-instruct",
     max_tokens: 400,
-    system: SYSTEM_PROMPT,
     messages: [
       {
         role: "user",
         content: [
           {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mimeType,
-              data: imageBase64,
+            type: "image_url",
+            image_url: {
+              url: `data:${mimeType};base64,${imageBase64}`,
             },
           },
           {
             type: "text",
-            text: "Analyze this clothing item and return the JSON object.",
+            text: `${SYSTEM_PROMPT}\n\nAnalyze this clothing item and return the JSON object.`,
           },
         ],
       },
     ],
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
-
-  // Strip any accidental markdown fences
+  const text = response.choices[0].message.content ?? "";
   const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim();
 
   let parsed: Partial<TagResult> = {};
   try {
     parsed = JSON.parse(cleaned);
   } catch {
-    // Fallback — return a generic tag so the upload doesn't fail
     parsed = {};
   }
 
