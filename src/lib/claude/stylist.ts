@@ -1,8 +1,8 @@
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { ClothingItem, ItemFormality, ItemWarmth } from "@/types/item";
 import { WeatherContext, OutfitSuggestion } from "@/types/chat";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export interface ConversationTurn {
   role: "user" | "assistant";
@@ -90,22 +90,16 @@ export function preFilterItems(
   const tempC = weather?.temp_c ?? 20;
 
   return items.filter((item) => {
-    // Season filter
     if (item.season && item.season.length > 0 && !item.season.includes(season as never)) {
       return false;
     }
-
-    // Warmth: exclude light items for outer layers when cold
     if (tempC < 10 && item.warmth === "light" && item.category === "outerwear") {
       return false;
     }
-
-    // Formality bracket: ±1 from target
     if (item.formality) {
       const rank = FORMALITY_RANK[item.formality];
       if (Math.abs(rank - targetFormalityRank) > 1) return false;
     }
-
     return true;
   });
 }
@@ -117,7 +111,6 @@ export async function generateStylistResponse(
 
   const candidateItems = preFilterItems(items, userMessage, weather);
 
-  // Build a compact item payload for the prompt
   const itemPayload = candidateItems.map((it) => ({
     id: it.id,
     category: it.category,
@@ -142,9 +135,10 @@ Wardrobe (${candidateItems.length} candidate items after filtering):
 ${JSON.stringify(itemPayload)}
   `.trim();
 
-  // Convert history to Anthropic messages format (cap at 10 turns)
   const recentHistory = history.slice(-10);
-  const messages: Anthropic.MessageParam[] = [
+
+  const messages: Groq.Chat.ChatCompletionMessageParam[] = [
+    { role: "system", content: STYLIST_SYSTEM },
     ...recentHistory.map((h) => ({
       role: h.role as "user" | "assistant",
       content: h.content,
@@ -155,20 +149,18 @@ ${JSON.stringify(itemPayload)}
     },
   ];
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
+  const response = await client.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
     max_tokens: 1000,
-    system: STYLIST_SYSTEM,
+    response_format: { type: "json_object" },
     messages,
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "{}";
-  const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/i, "").trim();
+  const text = response.choices[0].message.content ?? "{}";
 
   let parsed: StylistResponse;
   try {
-    parsed = JSON.parse(cleaned);
+    parsed = JSON.parse(text);
   } catch {
     parsed = {
       type: "clarify",
