@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { tagClothingItem } from "@/lib/claude/tagger";
 import { randomUUID } from "crypto";
 
 const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -44,20 +45,32 @@ export async function POST(request: NextRequest) {
 
       if (storageError) throw new Error(storageError.message);
 
-      // Use service client for insert to bypass RLS — user identity already verified above
+      // Tag the item with AI (non-fatal — falls back to defaults)
+      let tags = null;
+      try {
+        const base64 = buffer.toString("base64");
+        const mime = (file.type === "image/png" ? "image/png" : "image/jpeg") as
+          | "image/jpeg"
+          | "image/png";
+        tags = await tagClothingItem(base64, mime);
+      } catch {
+        // tagging failed — insert with defaults below
+      }
+
       const { data: item, error: dbError } = await serviceClient
         .from("items")
         .insert({
           user_id: user.id,
           image_url: storagePath,
-          category: "other",
-          subcategory: null,
-          primary_color: null,
-          pattern: null,
-          formality: "casual",
-          season: ["spring", "summer", "fall", "winter"],
-          warmth: "medium",
-          notes: null,
+          category: tags?.category ?? "other",
+          subcategory: tags?.subcategory ?? null,
+          primary_color: tags?.primary_color ?? null,
+          secondary_colors: tags?.secondary_colors ?? [],
+          pattern: tags?.pattern ?? null,
+          formality: tags?.formality ?? "casual",
+          season: tags?.season ?? ["spring", "summer", "fall", "winter"],
+          warmth: tags?.warmth ?? "medium",
+          notes: tags?.notes ?? null,
           wear_count: 0,
         })
         .select()

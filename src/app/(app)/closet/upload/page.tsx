@@ -155,8 +155,8 @@ export default function UploadPage() {
       <div className="mb-8">
         <h1 className="font-serif text-[1.85rem] italic leading-tight text-[#2B2622]">Add your wardrobe</h1>
         <p className="text-[#8A817A] mt-1 text-sm leading-relaxed">
-          Take photos or upload from your camera roll — one item per photo works best.
-          Backgrounds are removed automatically.
+          One item per photo. For the cleanest cut-out, place clothes on a
+          <span className="text-[#C97B5A] font-medium"> dark or colourful surface</span> — light clothes on white backgrounds are hard to cut out.
         </p>
       </div>
 
