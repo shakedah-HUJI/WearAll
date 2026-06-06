@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { ChatMessage } from "@/types/chat";
 
 interface UseChatOptions {
@@ -12,10 +12,14 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [threadId, setThreadId] = useState<string | undefined>(initialThreadId);
   const [isLoading, setIsLoading] = useState(false);
+  // Ref-based guard so sendMessage doesn't need isLoading in its deps.
+  // A state-based guard causes sendMessage to be recreated on every load
+  // state change, which makes chat page effects fire spuriously.
+  const loadingRef = useRef(false);
   const locationRef = useRef<{ lat: number; lon: number } | null>(null);
 
-  // Grab geolocation once
-  function captureLocation() {
+  // Capture location once on mount
+  useEffect(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -24,15 +28,14 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
           lon: pos.coords.longitude,
         };
       },
-      () => {} // silently ignore denial
+      () => {}
     );
-  }
+  }, []);
 
   const sendMessage = useCallback(
     async (text: string) => {
-      if (!text.trim() || isLoading) return;
+      if (!text.trim() || loadingRef.current) return;
 
-      // Optimistically add user message
       const tempUserMsg: ChatMessage = {
         id: `temp-${Date.now()}`,
         thread_id: threadId ?? "",
@@ -42,6 +45,7 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, tempUserMsg]);
+      loadingRef.current = true;
       setIsLoading(true);
 
       try {
@@ -64,14 +68,16 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
           setThreadId(data.threadId);
         }
 
-        // Replace temp message + add assistant response
+        // If the DB insert failed silently the server returns message:null,
+        // which would crash ChatBubble trying to read msg.id on null.
+        if (!data.message) throw new Error("empty response from server");
+
         setMessages((prev) => {
           const withoutTemp = prev.filter((m) => m.id !== tempUserMsg.id);
           const assistant = data.message as ChatMessage;
           return [...withoutTemp, tempUserMsg, assistant];
         });
       } catch {
-        // Keep the user's message visible and show a retry prompt
         const errorMsg: ChatMessage = {
           id: `error-${Date.now()}`,
           thread_id: threadId ?? "",
@@ -82,11 +88,12 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
         };
         setMessages((prev) => [...prev, errorMsg]);
       } finally {
+        loadingRef.current = false;
         setIsLoading(false);
       }
     },
-    [threadId, isLoading]
+    [threadId]
   );
 
-  return { messages, threadId, isLoading, sendMessage, captureLocation };
+  return { messages, threadId, isLoading, sendMessage };
 }

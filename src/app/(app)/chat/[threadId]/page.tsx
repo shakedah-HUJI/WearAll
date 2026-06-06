@@ -26,7 +26,7 @@ export default function ChatPage({ params }: PageProps) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { messages, threadId, isLoading, sendMessage, captureLocation } = useChat({
+  const { messages, threadId, isLoading, sendMessage } = useChat({
     threadId: isNew ? undefined : threadParam,
   });
 
@@ -39,11 +39,6 @@ export default function ChatPage({ params }: PageProps) {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const didInitRef = useRef(false);
-
-  // Capture location for weather
-  useEffect(() => {
-    captureLocation();
-  }, [captureLocation]);
 
   // Auto-send initial query from Home screen
   useEffect(() => {
