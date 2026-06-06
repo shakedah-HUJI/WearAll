@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#FBF7F2] px-6 pt-20 pb-10">
       <div className="mb-10">
-        <h1 className="text-3xl font-semibold text-[#2B2622] tracking-tight">
+        <h1 className="font-serif text-[2.1rem] italic leading-tight text-[#2B2622]">
           Welcome back
         </h1>
         <p className="text-[#8A817A] mt-1">Sign in to your closet</p>
@@ -73,7 +73,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 w-full py-3.5 rounded-full bg-[#C97B5A] text-white font-semibold text-base disabled:opacity-60 active:scale-[0.98] transition-transform"
+          className="mt-2 w-full py-3.5 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white font-semibold text-base disabled:opacity-60 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(201,123,90,0.38)]"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>

@@ -116,6 +116,80 @@ export function preFilterItems(
   });
 }
 
+function validateAndFixOutfit(
+  outfit: OutfitSuggestion,
+  allItems: ClothingItem[]
+): OutfitSuggestion | null {
+  const lookup = new Map(allItems.map((i) => [i.id, i]));
+
+  // Group item IDs by category
+  const byCategory = new Map<string, string[]>();
+  for (const id of outfit.item_ids) {
+    const item = lookup.get(id);
+    if (!item) continue;
+    const list = byCategory.get(item.category) ?? [];
+    list.push(id);
+    byCategory.set(item.category, list);
+  }
+
+  const tops = byCategory.get("top") ?? [];
+  const bottoms = byCategory.get("bottom") ?? [];
+  const dresses = byCategory.get("dress") ?? [];
+  const shoes = byCategory.get("shoes") ?? [];
+
+  // Must have shoes
+  if (shoes.length === 0) return null;
+
+  let fixedIds = [...outfit.item_ids];
+
+  // Can't have both a top and a dress — drop the dress, keep the top
+  if (tops.length > 0 && dresses.length > 0) {
+    fixedIds = fixedIds.filter((id) => lookup.get(id)?.category !== "dress");
+    byCategory.delete("dress");
+  }
+
+  // Two or more tops — keep only the first
+  const currentTops = byCategory.get("top") ?? [];
+  if (currentTops.length > 1) {
+    const [keep, ...drop] = currentTops;
+    void keep;
+    fixedIds = fixedIds.filter((id) => !drop.includes(id));
+    byCategory.set("top", [currentTops[0]]);
+  }
+
+  // Dress + bottom is invalid — drop the bottom
+  if ((byCategory.get("dress") ?? []).length > 0 && bottoms.length > 0) {
+    fixedIds = fixedIds.filter((id) => lookup.get(id)?.category !== "bottom");
+    byCategory.set("bottom", []);
+  }
+
+  // Top with no bottom — invalid
+  const finalTops = byCategory.get("top") ?? [];
+  const finalBottoms = byCategory.get("bottom") ?? [];
+  if (finalTops.length === 1 && finalBottoms.length === 0) return null;
+
+  // More than one bottom — keep only the first
+  if (finalBottoms.length > 1) {
+    const [keep, ...drop] = finalBottoms;
+    void keep;
+    fixedIds = fixedIds.filter((id) => !drop.includes(id));
+  }
+
+  // Duplicate outerwear / accessories — keep only the first
+  for (const cat of ["outerwear", "accessory", "shoes"]) {
+    const ids = byCategory.get(cat) ?? [];
+    if (ids.length > 1) {
+      const [, ...drop] = ids;
+      fixedIds = fixedIds.filter((id) => !drop.includes(id));
+    }
+  }
+
+  // Need at least top+bottom+shoes OR dress+shoes (3+ items minimum)
+  if (fixedIds.length < 2) return null;
+
+  return { ...outfit, item_ids: fixedIds };
+}
+
 export async function generateStylistResponse(
   params: StylistParams
 ): Promise<StylistResponse> {
@@ -183,6 +257,27 @@ ${JSON.stringify(itemPayload)}
         "Dressy & elegant",
       ],
     };
+  }
+
+  // Validate and repair outfit structure — strip anything the AI got wrong
+  if (parsed.type === "outfit") {
+    const validOutfits = parsed.outfits
+      .map((o) => validateAndFixOutfit(o, items))
+      .filter((o): o is OutfitSuggestion => o !== null);
+
+    if (validOutfits.length === 0) {
+      parsed = {
+        type: "clarify",
+        questions: [
+          "What's the occasion and vibe you're going for?",
+          "Casual & relaxed",
+          "Smart & put-together",
+          "Dressy & elegant",
+        ],
+      };
+    } else {
+      parsed = { ...parsed, outfits: validOutfits };
+    }
   }
 
   return parsed;

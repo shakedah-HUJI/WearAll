@@ -56,7 +56,7 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
           }),
         });
 
-        if (!res.ok) throw new Error("Chat request failed");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
 
@@ -71,7 +71,16 @@ export function useChat({ threadId: initialThreadId, initialMessages = [] }: Use
           return [...withoutTemp, tempUserMsg, assistant];
         });
       } catch {
-        setMessages((prev) => prev.filter((m) => m.id !== tempUserMsg.id));
+        // Keep the user's message visible and show a retry prompt
+        const errorMsg: ChatMessage = {
+          id: `error-${Date.now()}`,
+          thread_id: threadId ?? "",
+          user_id: "",
+          role: "assistant",
+          content: { type: "text", text: "Something went wrong on my end — please try sending that again." },
+          created_at: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMsg]);
       } finally {
         setIsLoading(false);
       }

@@ -90,7 +90,7 @@ export default function ChatPage({ params }: PageProps) {
           >
             <ArrowLeft size={22} className="text-[#2B2622]" />
           </button>
-          <h2 className="text-lg font-semibold text-[#2B2622]">The look</h2>
+          <h2 className="font-serif text-xl italic text-[#2B2622]">The look</h2>
         </div>
         <div className="flex-1 overflow-y-auto">
           <OutfitDetail
@@ -113,7 +113,7 @@ export default function ChatPage({ params }: PageProps) {
         >
           <ArrowLeft size={22} className="text-[#2B2622]" />
         </button>
-        <h2 className="text-lg font-semibold text-[#2B2622]">Mia</h2>
+        <h2 className="font-serif text-xl italic text-[#2B2622]">Mia</h2>
         <span className="ml-2 text-xs text-[#A7B0A0] bg-[#ECE6DF] px-2 py-0.5 rounded-full">
           Your stylist
         </span>

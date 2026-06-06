@@ -87,12 +87,12 @@ export default function HomePage() {
 
       {/* Greeting */}
       <div className="mb-8">
-        <p className="text-sm text-[#8A817A] font-medium">{greeting}</p>
-        <h1 className="text-3xl font-semibold text-[#2B2622] tracking-tight mt-0.5">
+        <p className="text-sm text-[#8A817A] font-medium tracking-wide uppercase">{greeting}</p>
+        <h1 className="font-serif text-[2.1rem] leading-tight text-[#2B2622] italic mt-1">
           {displayName === null ? (
-            <span className="inline-block w-32 h-8 bg-[#ECE6DF] rounded-lg animate-pulse" />
+            <span className="inline-block w-36 h-9 bg-[#ECE6DF] rounded-lg animate-pulse" />
           ) : (
-            <>Hello, {displayName || "there"}! 👋</>
+            <>Hello, {displayName || "there"}</>
           )}
         </h1>
         <p className="text-[#8A817A] mt-2 text-sm leading-relaxed">
@@ -102,21 +102,24 @@ export default function HomePage() {
 
       {/* Wardrobe stats */}
       {!isLoading && allItems.length > 0 && (
-        <div className="bg-white rounded-[20px] border border-[#ECE6DF] p-4 mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-[#2B2622]">Your wardrobe</p>
-            <span className="text-sm font-semibold text-[#C97B5A]">{allItems.length} items</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(Object.entries(categoryCounts) as [ItemCategory, number][]).map(([cat, count]) => (
-              <button
-                key={cat}
-                onClick={() => router.push(`/closet?category=${cat}`)}
-                className="text-xs px-3 py-1.5 rounded-full bg-[#FBF7F2] border border-[#ECE6DF] text-[#2B2622] font-medium active:bg-[#ECE6DF] transition-colors"
-              >
-                {CATEGORY_LABELS[cat]} · {count}
-              </button>
-            ))}
+        <div className="rounded-[20px] overflow-hidden shadow-[0_2px_16px_rgba(43,38,34,0.07),0_0_0_1px_#ECE6DF] mb-5">
+          <div className="h-1 bg-gradient-to-r from-[#C97B5A] to-[#D4856A]" />
+          <div className="bg-white p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-[#2B2622]">Your wardrobe</p>
+              <span className="text-sm font-semibold text-[#C97B5A]">{allItems.length} items</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(Object.entries(categoryCounts) as [ItemCategory, number][]).map(([cat, count]) => (
+                <button
+                  key={cat}
+                  onClick={() => router.push(`/closet?category=${cat}`)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-[#FBF7F2] border border-[#ECE6DF] text-[#2B2622] font-medium active:bg-[#ECE6DF] transition-colors"
+                >
+                  {CATEGORY_LABELS[cat]} · {count}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -199,7 +202,7 @@ export default function HomePage() {
       <div className="mt-auto pt-4">
         <button
           onClick={() => router.push("/chat/new")}
-          className="w-full py-4 rounded-full bg-[#C97B5A] text-white font-semibold text-base active:opacity-80 transition-opacity shadow-md"
+          className="w-full py-4 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white font-semibold text-base active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(201,123,90,0.4)] hover:shadow-[0_6px_24px_rgba(201,123,90,0.5)]"
         >
           Chat with your AI Stylist ✨
         </button>

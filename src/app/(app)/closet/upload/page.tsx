@@ -105,7 +105,7 @@ export default function UploadPage() {
   return (
     <div className="flex flex-col min-h-screen px-5 pt-14 pb-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-[#2B2622]">Add your wardrobe</h1>
+        <h1 className="font-serif text-[1.85rem] italic leading-tight text-[#2B2622]">Add your wardrobe</h1>
         <p className="text-[#8A817A] mt-1 text-sm leading-relaxed">
           Take photos or upload from your camera roll — one item per photo works best.
           Backgrounds are removed automatically.

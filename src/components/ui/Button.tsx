@@ -21,7 +21,7 @@ export default function Button({
       className={cn(
         "rounded-full font-semibold transition-all active:scale-[0.97] disabled:opacity-50",
         {
-          "bg-[#C97B5A] text-white": variant === "primary",
+          "bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white shadow-[0_4px_20px_rgba(201,123,90,0.38)] hover:shadow-[0_6px_24px_rgba(201,123,90,0.48)]": variant === "primary",
           "border border-[#C97B5A] text-[#C97B5A] bg-transparent": variant === "secondary",
           "text-[#8A817A] bg-transparent": variant === "ghost",
           "px-4 py-2 text-sm": size === "sm",

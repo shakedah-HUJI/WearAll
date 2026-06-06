@@ -47,14 +47,14 @@ export default function ClosetPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-14 pb-3">
         <div>
-          <h1 className="text-2xl font-semibold text-[#2B2622]">My Closet</h1>
+          <h1 className="font-serif text-[1.85rem] italic leading-tight text-[#2B2622]">My Closet</h1>
           <p className="text-sm text-[#8A817A]">
             {allItems.length} {allItems.length === 1 ? "item" : "items"}
           </p>
         </div>
         <button
           onClick={() => router.push("/closet/upload")}
-          className="w-10 h-10 rounded-full bg-[#C97B5A] flex items-center justify-center text-white"
+          className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(201,123,90,0.35)]"
         >
           <Plus size={20} />
         </button>
