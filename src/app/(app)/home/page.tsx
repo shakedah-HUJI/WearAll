@@ -37,7 +37,8 @@ export default function HomePage() {
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const { allItems, isLoading } = useItems();
-  const { weather, isLoading: weatherLoading, locationDenied } = useWeather();
+  const { weather, isLoading: weatherLoading, locationDenied, city, saveCity } = useWeather();
+  const [cityInput, setCityInput] = useState("");
 
   useEffect(() => {
     const supabase = createClient();
@@ -122,21 +123,33 @@ export default function HomePage() {
           </div>
         </div>
       )}
-      {locationDenied && (
-        <button
-          onClick={() => {
-            navigator.geolocation?.getCurrentPosition(
-              () => window.location.reload(),
-              () => {}
-            );
-          }}
-          className="flex items-center gap-2 w-full bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 text-left"
-        >
-          <span className="text-lg">📍</span>
-          <p className="text-xs text-[#8A817A]">Tap to allow location for live weather</p>
-        </button>
+      {locationDenied && !city && (
+        <div className="bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5">
+          <p className="text-xs text-[#8A817A] mb-2">📍 Enter your city for live weather</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (cityInput.trim()) saveCity(cityInput.trim());
+            }}
+            className="flex gap-2"
+          >
+            <input
+              value={cityInput}
+              onChange={(e) => setCityInput(e.target.value)}
+              placeholder="e.g. Tel Aviv"
+              className="flex-1 px-3 py-2 rounded-[12px] border border-[#ECE6DF] text-sm text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A]"
+            />
+            <button
+              type="submit"
+              disabled={!cityInput.trim()}
+              className="px-4 py-2 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white text-sm font-semibold disabled:opacity-40"
+            >
+              Go
+            </button>
+          </form>
+        </div>
       )}
-      {weather && !locationDenied && (
+      {weather && (
         <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 shadow-[0_1px_8px_rgba(43,38,34,0.05)]">
           <span className="text-2xl shrink-0">{weatherEmoji(weather.condition)}</span>
           <div className="flex-1 min-w-0">
