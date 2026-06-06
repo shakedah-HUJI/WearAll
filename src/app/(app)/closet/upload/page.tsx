@@ -10,6 +10,36 @@ import UploadProgress, {
 } from "@/components/items/UploadProgress";
 import Button from "@/components/ui/Button";
 
+// Resize + compress to JPEG before any processing (phone photos can be 10–15 MB)
+async function compressImage(file: File, maxDim = 1200, quality = 0.85): Promise<File> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.round(img.naturalWidth * scale);
+      const h = Math.round(img.naturalHeight * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(file); return; }
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        quality
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
 // Try background removal with a 20-second timeout; fall back to original on any failure
 async function removeBackgroundSafe(file: File): Promise<File> {
   return new Promise((resolve) => {
@@ -52,12 +82,13 @@ export default function UploadPage() {
     setUploading(true);
     setAllDone(false);
 
-    // Remove background from each file sequentially (20s timeout per image)
+    // Compress → remove background for each file sequentially
     const processedFiles: File[] = [];
     for (let i = 0; i < accepted.length; i++) {
       const original = accepted[i];
       const nf = newFiles[i];
-      const processed = await removeBackgroundSafe(original);
+      const compressed = await compressImage(original);   // ~300 KB after this
+      const processed = await removeBackgroundSafe(compressed);
       processedFiles.push(processed);
       updateStatus(nf.id, { status: "uploading" });
     }

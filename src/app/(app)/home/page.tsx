@@ -3,8 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useItems } from "@/hooks/useItems";
+import { useWeather } from "@/hooks/useWeather";
 import { createClient } from "@/lib/supabase/client";
 import { ItemCategory } from "@/types/item";
+
+function weatherEmoji(condition: string): string {
+  if (condition.includes("clear")) return "☀️";
+  if (condition.includes("cloud")) return "⛅";
+  if (condition.includes("rain") || condition.includes("drizzle")) return "🌧️";
+  if (condition.includes("thunder")) return "⛈️";
+  if (condition.includes("snow")) return "❄️";
+  if (condition.includes("mist") || condition.includes("fog") || condition.includes("haze")) return "🌫️";
+  return "🌡️";
+}
 
 const CATEGORY_LABELS: Record<ItemCategory, string> = {
   top: "Tops",
@@ -26,6 +37,7 @@ export default function HomePage() {
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const { allItems, isLoading } = useItems();
+  const { weather, isLoading: weatherLoading, locationDenied } = useWeather();
 
   useEffect(() => {
     const supabase = createClient();
@@ -99,6 +111,30 @@ export default function HomePage() {
           Here's a look at your wardrobe today.
         </p>
       </div>
+
+      {/* Weather card */}
+      {weatherLoading && !locationDenied && (
+        <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 animate-pulse">
+          <div className="w-8 h-8 bg-[#ECE6DF] rounded-full shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3.5 w-24 bg-[#ECE6DF] rounded" />
+            <div className="h-3 w-36 bg-[#ECE6DF] rounded" />
+          </div>
+        </div>
+      )}
+      {weather && (
+        <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 shadow-[0_1px_8px_rgba(43,38,34,0.05)]">
+          <span className="text-2xl shrink-0">{weatherEmoji(weather.condition)}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[#2B2622]">
+              {weather.temp_c}°C &middot; <span className="capitalize">{weather.description}</span>
+            </p>
+            <p className="text-xs text-[#8A817A]">
+              Feels like {weather.feels_like_c}°C · {weather.humidity}% humidity
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Wardrobe stats */}
       {!isLoading && allItems.length > 0 && (
