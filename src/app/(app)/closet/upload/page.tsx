@@ -10,8 +10,8 @@ import UploadProgress, {
 } from "@/components/items/UploadProgress";
 import Button from "@/components/ui/Button";
 
-// Resize to 1000 px before BG removal — enough detail while keeping memory usage low
-async function compressImage(file: File, maxDim = 1000, quality = 0.88): Promise<File> {
+// Resize + compress to JPEG — keeps uploads fast and small
+async function compressImage(file: File, maxDim = 1200, quality = 0.88): Promise<File> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -40,28 +40,6 @@ async function compressImage(file: File, maxDim = 1000, quality = 0.88): Promise
   });
 }
 
-// Try background removal with a 20-second timeout; fall back to original on any failure
-async function removeBackgroundSafe(file: File): Promise<File> {
-  return new Promise((resolve) => {
-    const timer = setTimeout(() => resolve(file), 20_000);
-
-    import("@imgly/background-removal")
-      .then(({ removeBackground }) =>
-        removeBackground(file, { model: "isnet_quint8", output: { format: "image/png", quality: 1 } })
-      )
-      .then((blob) => {
-        clearTimeout(timer);
-        // Use .png extension since background-removed output is always PNG
-        const pngName = file.name.replace(/\.[^.]+$/, ".png");
-        resolve(new File([blob], pngName, { type: "image/png" }));
-      })
-      .catch(() => {
-        clearTimeout(timer);
-        resolve(file);
-      });
-  });
-}
-
 export default function UploadPage() {
   const router = useRouter();
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -77,29 +55,23 @@ export default function UploadPage() {
     const newFiles: UploadFile[] = accepted.map((f) => ({
       id: Math.random().toString(36).slice(2),
       name: f.name,
-      status: "processing" as UploadStatus,
+      status: "uploading" as UploadStatus,
     }));
 
     setFiles((prev) => [...prev, ...newFiles]);
     setUploading(true);
     setAllDone(false);
 
-    // Compress → remove background for each file sequentially
+    // Compress each photo before uploading
     const processedFiles: File[] = [];
     for (let i = 0; i < accepted.length; i++) {
-      const original = accepted[i];
-      const nf = newFiles[i];
-      const compressed = await compressImage(original);   // ~300 KB after this
-      const processed = await removeBackgroundSafe(compressed);
-      processedFiles.push(processed);
-      updateStatus(nf.id, { status: "uploading" });
+      processedFiles.push(await compressImage(accepted[i]));
     }
 
-    // Build a map from processed filename → original UploadFile id for result matching
+    // Map processed filename → UploadFile id for result matching
     const nameToId = new Map<string, string>();
     processedFiles.forEach((pf, i) => nameToId.set(pf.name, newFiles[i].id));
 
-    // Upload all processed files in one request
     const formData = new FormData();
     processedFiles.forEach((f) => formData.append("files", f));
 
@@ -127,7 +99,7 @@ export default function UploadPage() {
         }
       });
 
-      // Mark any still-uploading files as done (fallback for missing results)
+      // Fallback: mark any still-uploading as done
       newFiles.forEach((nf) =>
         setFiles((prev) =>
           prev.map((f) => (f.id === nf.id && f.status === "uploading" ? { ...f, status: "done" } : f))
@@ -155,12 +127,10 @@ export default function UploadPage() {
       <div className="mb-8">
         <h1 className="font-serif text-[1.85rem] italic leading-tight text-[#2B2622]">Add your wardrobe</h1>
         <p className="text-[#8A817A] mt-1 text-sm leading-relaxed">
-          One item per photo. For the cleanest cut-out, place clothes on a
-          <span className="text-[#C97B5A] font-medium"> dark or colourful surface</span> — light clothes on white backgrounds are hard to cut out.
+          One item per photo works best. The AI will automatically tag the category, colour, and style.
         </p>
       </div>
 
-      {/* Drop zone */}
       {!uploading && !allDone && (
         <div
           {...getRootProps()}
@@ -181,12 +151,11 @@ export default function UploadPage() {
         </div>
       )}
 
-      {/* Progress list */}
       {files.length > 0 && (
         <div className="mt-6">
           {uploading && (
             <p className="text-xs font-semibold text-[#8A817A] uppercase tracking-wide mb-3">
-              Processing…
+              Uploading…
             </p>
           )}
           {!uploading && allDone && (
@@ -198,7 +167,6 @@ export default function UploadPage() {
         </div>
       )}
 
-      {/* Finish buttons */}
       {allDone && (
         <div className="mt-8 flex flex-col gap-3">
           <div {...getRootProps()}>
