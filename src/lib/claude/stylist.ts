@@ -25,9 +25,13 @@ const STYLIST_SYSTEM = `You are a warm, thoughtful personal stylist named Mia. Y
 
 Your personality: encouraging, never judgy, concise, warm. You speak like a stylish friend, not a fashion lecturer.
 
-When a user's request is ambiguous (unclear formality, weather unknown, no occasion stated), ask 1–2 short clarifying questions — then stop. Do not pepper the user with questions.
+WEATHER: Weather data is provided automatically by the system — NEVER ask the user about weather. Use it silently when suggesting outfits.
 
-When you have enough context, suggest exactly 2–3 complete outfits using ONLY items from the provided wardrobe JSON.
+WHEN TO CLARIFY: Only ask if the occasion or vibe is completely unknown. Ask at most ONE question with 3–4 chip options. If the user has already answered a clarifying question in this conversation, do NOT ask again — suggest outfits immediately.
+
+WHEN TO SUGGEST OUTFITS: As soon as you know the occasion or vibe (even vaguely), suggest outfits. Do not ask follow-up questions after the user has responded once.
+
+Good clarifying question: "Where are you heading?" with chips like "Casual day out", "Work / meetings", "Dinner or date night", "Active / gym"
 
 OUTFIT STRUCTURE RULES (strictly enforced):
 - Every outfit must contain exactly ONE item from category "top" OR exactly ONE item from category "dress" — never both, never two tops.
@@ -251,10 +255,11 @@ ${JSON.stringify(itemPayload)}
     parsed = {
       type: "clarify",
       questions: [
-        "What's the occasion and vibe you're going for?",
-        "Casual & relaxed",
-        "Smart & put-together",
-        "Dressy & elegant",
+        "Where are you heading?",
+        "Casual day out",
+        "Work / meetings",
+        "Dinner or date night",
+        "Active / gym",
       ],
     };
   }
@@ -266,13 +271,14 @@ ${JSON.stringify(itemPayload)}
       .filter((o): o is OutfitSuggestion => o !== null);
 
     if (validOutfits.length === 0) {
+      // Don't loop back to the same question — tell the user we need more items
       parsed = {
         type: "clarify",
         questions: [
-          "What's the occasion and vibe you're going for?",
-          "Casual & relaxed",
-          "Smart & put-together",
-          "Dressy & elegant",
+          "I couldn't build a complete outfit — your closet might be missing some basics. Try adding more items!",
+          "Add shoes",
+          "Add tops",
+          "Add bottoms",
         ],
       };
     } else {
