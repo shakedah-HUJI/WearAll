@@ -1,7 +1,7 @@
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type UploadStatus = "uploading" | "tagging" | "done" | "error";
+export type UploadStatus = "processing" | "uploading" | "tagging" | "done" | "error";
 
 export interface UploadFile {
   id: string;
@@ -17,6 +17,7 @@ interface UploadProgressProps {
 }
 
 const statusLabel: Record<UploadStatus, string> = {
+  processing: "Removing background…",
   uploading: "Uploading…",
   tagging: "Analyzing outfit…",
   done: "Added to closet",

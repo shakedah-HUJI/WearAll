@@ -28,11 +28,20 @@ export default function ItemCard({ item, onDelete, className }: ItemCardProps) {
         </div>
       )}
 
-      {/* Category chip */}
-      <div className="absolute bottom-2 left-2">
+      {/* Category + color chips */}
+      <div className="absolute bottom-2 left-2 flex items-center gap-1 flex-wrap">
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm text-[#2B2622] capitalize">
           {item.subcategory ?? item.category}
         </span>
+        {item.primary_color && (
+          <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm text-[#2B2622] capitalize">
+            <span
+              className="w-2.5 h-2.5 rounded-full border border-white/60 shrink-0"
+              style={{ backgroundColor: item.primary_color }}
+            />
+            {item.primary_color}
+          </span>
+        )}
       </div>
 
       {/* Delete button — visible on hover/long-press */}

@@ -16,62 +16,68 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [allDone, setAllDone] = useState(false);
 
+  const updateStatus = (id: string, patch: Partial<UploadFile>) =>
+    setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, ...patch } : f)));
+
   const onDrop = useCallback(async (accepted: File[]) => {
     if (!accepted.length) return;
 
     const newFiles: UploadFile[] = accepted.map((f) => ({
       id: Math.random().toString(36).slice(2),
       name: f.name,
-      status: "uploading" as UploadStatus,
+      status: "processing" as UploadStatus,
     }));
 
     setFiles((prev) => [...prev, ...newFiles]);
     setUploading(true);
     setAllDone(false);
 
+    // Remove background from each file sequentially
+    const processedFiles: File[] = [];
+    for (let i = 0; i < accepted.length; i++) {
+      const original = accepted[i];
+      const nf = newFiles[i];
+      try {
+        const { removeBackground } = await import("@imgly/background-removal");
+        const blob = await removeBackground(original);
+        // Keep original filename so the API can match results back
+        processedFiles.push(new File([blob], original.name, { type: "image/png" }));
+      } catch {
+        // Fall back to original image if removal fails
+        processedFiles.push(original);
+      }
+      updateStatus(nf.id, { status: "uploading" });
+    }
+
+    // Upload all processed files in one request
     const formData = new FormData();
-    accepted.forEach((f) => formData.append("files", f));
+    processedFiles.forEach((f) => formData.append("files", f));
 
     try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch("/api/upload", { method: "POST", body: formData });
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({ error: "Upload failed" }));
         newFiles.forEach((nf) =>
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === nf.id ? { ...f, status: "error", error: err.error ?? "Upload failed" } : f
-            )
-          )
+          updateStatus(nf.id, { status: "error", error: err.error ?? "Upload failed" })
         );
         return;
       }
 
       const results = await response.json();
 
-      // Update each file's status based on results
       results.forEach((result: { name: string; status: string; error?: string; item?: { category?: string } }) => {
         const match = newFiles.find((nf) => nf.name === result.name);
         if (match) {
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === match.id
-                ? {
-                    ...f,
-                    status: result.status as UploadStatus,
-                    category: result.item?.category,
-                    error: result.error,
-                  }
-                : f
-            )
-          );
+          updateStatus(match.id, {
+            status: result.status as UploadStatus,
+            category: result.item?.category,
+            error: result.error,
+          });
         }
       });
 
-      // If no match by name (e.g. all named image.jpg), mark all as done
+      // Mark any still-uploading files as done
       if (results.length > 0 && results.every((r: { status: string }) => r.status === "done")) {
         newFiles.forEach((nf) =>
           setFiles((prev) =>
@@ -81,9 +87,7 @@ export default function UploadPage() {
       }
     } catch {
       newFiles.forEach((nf) =>
-        setFiles((prev) =>
-          prev.map((f) => (f.id === nf.id ? { ...f, status: "error", error: "Network error" } : f))
-        )
+        updateStatus(nf.id, { status: "error", error: "Network error" })
       );
     } finally {
       setUploading(false);
@@ -104,6 +108,7 @@ export default function UploadPage() {
         <h1 className="text-2xl font-semibold text-[#2B2622]">Add your wardrobe</h1>
         <p className="text-[#8A817A] mt-1 text-sm leading-relaxed">
           Take photos or upload from your camera roll — one item per photo works best.
+          Backgrounds are removed automatically.
         </p>
       </div>
 
@@ -128,20 +133,19 @@ export default function UploadPage() {
         </div>
       )}
 
-      {/* Loading state */}
-      {uploading && (
-        <div className="flex flex-col items-center justify-center py-12 gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-[#C97B5A] border-t-transparent animate-spin" />
-          <p className="text-[#8A817A] text-sm">Saving your photos…</p>
-        </div>
-      )}
-
       {/* Progress list */}
-      {files.length > 0 && !uploading && (
+      {files.length > 0 && (
         <div className="mt-6">
-          <p className="text-xs font-semibold text-[#8A817A] uppercase tracking-wide mb-3">
-            Done
-          </p>
+          {uploading && (
+            <p className="text-xs font-semibold text-[#8A817A] uppercase tracking-wide mb-3">
+              Processing…
+            </p>
+          )}
+          {!uploading && allDone && (
+            <p className="text-xs font-semibold text-[#8A817A] uppercase tracking-wide mb-3">
+              Done
+            </p>
+          )}
           <UploadProgress files={files} />
         </div>
       )}

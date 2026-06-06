@@ -1,102 +1,61 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Wind, Droplets, Thermometer, Loader2 } from "lucide-react";
+import { useItems } from "@/hooks/useItems";
 import { createClient } from "@/lib/supabase/client";
-import { WeatherContext } from "@/types/chat";
+import { ItemCategory } from "@/types/item";
 
-const WEATHER_ICON: Record<string, string> = {
-  clear: "☀️",
-  clouds: "☁️",
-  rain: "🌧️",
-  drizzle: "🌦️",
-  snow: "❄️",
-  thunderstorm: "⛈️",
-  mist: "🌫️",
-  fog: "🌫️",
-  haze: "🌫️",
+const CATEGORY_LABELS: Record<ItemCategory, string> = {
+  top: "Tops",
+  bottom: "Bottoms",
+  dress: "Dresses",
+  outerwear: "Outerwear",
+  shoes: "Shoes",
+  accessory: "Accessories",
+  other: "Other",
 };
 
-function getWeatherTip(temp: number, condition: string): string {
-  if (condition.includes("rain") || condition.includes("drizzle"))
-    return "Don't forget a waterproof layer!";
-  if (temp < 10) return "It's cold — time to layer up!";
-  if (temp < 18) return "Perfect weather for layering!";
-  if (temp < 25) return "Great weather for almost anything!";
-  return "Keep it light and breathable!";
-}
+const CATEGORY_ORDER: ItemCategory[] = [
+  "top", "bottom", "dress", "outerwear", "shoes", "accessory", "other",
+];
 
 export default function HomePage() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
-  const [destination, setDestination] = useState("");
-  const [occasion, setOccasion] = useState("");
-  const [weather, setWeather] = useState<WeatherContext | null>(null);
-  const [weatherLoading, setWeatherLoading] = useState(false);
-  const [weatherError, setWeatherError] = useState("");
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { allItems, isLoading } = useItems();
 
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", user.id)
-        .single()
+      supabase.from("profiles").select("display_name").eq("id", user.id).single()
         .then(({ data }) => {
           setDisplayName(data?.display_name ? data.display_name.split(" ")[0] : "");
         });
     });
   }, []);
 
-  // Fetch weather when destination changes (debounced)
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!destination.trim() || destination.trim().length < 3) {
-      setWeather(null);
-      setWeatherError("");
-      return;
-    }
-    debounceRef.current = setTimeout(async () => {
-      setWeatherLoading(true);
-      setWeatherError("");
-      try {
-        const res = await fetch(`/api/weather?city=${encodeURIComponent(destination.trim())}`);
-        if (!res.ok) throw new Error("City not found");
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        setWeather(data);
-      } catch {
-        setWeather(null);
-        setWeatherError("City not found — try another name");
-      } finally {
-        setWeatherLoading(false);
-      }
-    }, 800);
-  }, [destination]);
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  function handleStartChat() {
-    const parts = [];
-    if (destination) parts.push(`I'm heading to ${destination}`);
-    if (occasion) parts.push(`for ${occasion}`);
-    if (weather) parts.push(`The weather there is ${weather.temp_c}°C and ${weather.description}`);
-    const message = parts.length
-      ? parts.join(". ") + ". Help me pick an outfit!"
-      : "Help me pick an outfit for today!";
-    router.push(`/chat/new?q=${encodeURIComponent(message)}`);
-  }
+  const categoryCounts = CATEGORY_ORDER.reduce<Partial<Record<ItemCategory, number>>>((acc, cat) => {
+    const count = allItems.filter((i) => i.category === cat).length;
+    if (count > 0) acc[cat] = count;
+    return acc;
+  }, {});
 
-  const weatherIcon = weather ? WEATHER_ICON[weather.condition] ?? "🌡️" : null;
+  const rarelyWorn = [...allItems]
+    .sort((a, b) => (a.wear_count ?? 0) - (b.wear_count ?? 0))
+    .slice(0, 5);
 
   return (
     <div className="flex flex-col min-h-screen px-5 pt-14 pb-28">
-      {/* Name prompt for users without a saved name */}
-      {displayName === "" && displayName !== null && (
+
+      {/* Name prompt */}
+      {displayName === "" && (
         <div className="mb-6 bg-white rounded-[20px] border border-[#ECE6DF] p-4">
           <p className="text-sm font-semibold text-[#2B2622] mb-2">What's your name?</p>
           <div className="flex gap-2">
@@ -128,9 +87,7 @@ export default function HomePage() {
 
       {/* Greeting */}
       <div className="mb-8">
-        <p className="text-sm text-[#8A817A] font-medium">
-          {new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening"}
-        </p>
+        <p className="text-sm text-[#8A817A] font-medium">{greeting}</p>
         <h1 className="text-3xl font-semibold text-[#2B2622] tracking-tight mt-0.5">
           {displayName === null ? (
             <span className="inline-block w-32 h-8 bg-[#ECE6DF] rounded-lg animate-pulse" />
@@ -138,89 +95,110 @@ export default function HomePage() {
             <>Hello, {displayName || "there"}! 👋</>
           )}
         </h1>
-        <p className="text-[#8A817A] mt-2 leading-relaxed">
-          Where are you heading today? Tell me your destination and occasion and I'll put together the perfect look.
+        <p className="text-[#8A817A] mt-2 text-sm leading-relaxed">
+          Here's a look at your wardrobe today.
         </p>
       </div>
 
-      {/* Destination input */}
-      <div className="mb-4">
-        <label className="text-sm font-semibold text-[#2B2622] mb-2 block">
-          📍 Where are you going?
-        </label>
-        <div className="relative">
-          <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A817A]" />
-          <input
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            placeholder="City or place, e.g. Tel Aviv"
-            className="w-full pl-10 pr-4 py-3.5 rounded-[16px] border border-[#ECE6DF] bg-white text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] focus:border-transparent text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Occasion input */}
-      <div className="mb-5">
-        <label className="text-sm font-semibold text-[#2B2622] mb-2 block">
-          ✨ What's the occasion?
-        </label>
-        <input
-          value={occasion}
-          onChange={(e) => setOccasion(e.target.value)}
-          placeholder="e.g. work meeting, dinner date, casual day out"
-          className="w-full px-4 py-3.5 rounded-[16px] border border-[#ECE6DF] bg-white text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] focus:border-transparent text-sm"
-        />
-      </div>
-
-      {/* Weather card */}
-      {weatherLoading && (
-        <div className="flex items-center gap-2 px-4 py-3 bg-white rounded-[18px] border border-[#ECE6DF] mb-5">
-          <Loader2 size={16} className="animate-spin text-[#C97B5A]" />
-          <span className="text-sm text-[#8A817A]">Checking weather in {destination}…</span>
-        </div>
-      )}
-
-      {weatherError && !weatherLoading && (
-        <div className="px-4 py-3 bg-white rounded-[18px] border border-[#ECE6DF] mb-5">
-          <p className="text-sm text-[#8A817A]">{weatherError}</p>
-        </div>
-      )}
-
-      {weather && !weatherLoading && (
+      {/* Wardrobe stats */}
+      {!isLoading && allItems.length > 0 && (
         <div className="bg-white rounded-[20px] border border-[#ECE6DF] p-4 mb-5">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">{weatherIcon}</span>
-            <div>
-              <p className="font-semibold text-[#2B2622]">
-                Right now in {destination}, it's {weather.temp_c}°C
-              </p>
-              <p className="text-sm text-[#8A817A] capitalize">{weather.description}</p>
-            </div>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-[#2B2622]">Your wardrobe</p>
+            <span className="text-sm font-semibold text-[#C97B5A]">{allItems.length} items</span>
           </div>
-          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-[#ECE6DF]">
-            <span className="text-xs text-[#8A817A] flex items-center gap-1">
-              <Thermometer size={11} /> Feels {weather.feels_like_c}°C
-            </span>
-            <span className="text-xs text-[#8A817A] flex items-center gap-1">
-              <Wind size={11} /> {weather.wind_kph} km/h
-            </span>
-            <span className="text-xs text-[#8A817A] flex items-center gap-1">
-              <Droplets size={11} /> {weather.humidity}%
-            </span>
+          <div className="flex flex-wrap gap-2">
+            {(Object.entries(categoryCounts) as [ItemCategory, number][]).map(([cat, count]) => (
+              <button
+                key={cat}
+                onClick={() => router.push(`/closet?category=${cat}`)}
+                className="text-xs px-3 py-1.5 rounded-full bg-[#FBF7F2] border border-[#ECE6DF] text-[#2B2622] font-medium active:bg-[#ECE6DF] transition-colors"
+              >
+                {CATEGORY_LABELS[cat]} · {count}
+              </button>
+            ))}
           </div>
-          <p className="text-xs text-[#C97B5A] font-medium mt-2">
-            💡 {getWeatherTip(weather.temp_c, weather.description)}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && allItems.length === 0 && (
+        <div className="bg-white rounded-[20px] border border-[#ECE6DF] p-6 mb-5 text-center">
+          <p className="text-3xl mb-2">👗</p>
+          <p className="text-sm font-semibold text-[#2B2622]">Your closet is empty</p>
+          <p className="text-xs text-[#8A817A] mt-1 mb-4">
+            Add your clothes to start getting outfit suggestions
           </p>
+          <button
+            onClick={() => router.push("/closet/upload")}
+            className="text-sm font-semibold text-[#C97B5A]"
+          >
+            Add clothes →
+          </button>
+        </div>
+      )}
+
+      {/* Skeleton while loading */}
+      {isLoading && (
+        <div className="bg-white rounded-[20px] border border-[#ECE6DF] p-4 mb-5 animate-pulse">
+          <div className="h-4 w-28 bg-[#ECE6DF] rounded mb-3" />
+          <div className="flex gap-2">
+            <div className="h-7 w-16 bg-[#ECE6DF] rounded-full" />
+            <div className="h-7 w-20 bg-[#ECE6DF] rounded-full" />
+            <div className="h-7 w-14 bg-[#ECE6DF] rounded-full" />
+          </div>
+        </div>
+      )}
+
+      {/* Rarely worn */}
+      {!isLoading && rarelyWorn.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-semibold text-[#2B2622]">Rarely worn</p>
+            <button
+              onClick={() => router.push("/closet")}
+              className="text-xs text-[#8A817A]"
+            >
+              See all
+            </button>
+          </div>
+          <p className="text-xs text-[#8A817A] mb-3">These pieces deserve more love</p>
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+            {rarelyWorn.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => router.push("/closet")}
+                className="shrink-0 flex flex-col items-center gap-1.5"
+              >
+                <div className="w-[88px] h-[88px] rounded-[18px] overflow-hidden bg-[#ECE6DF]">
+                  {item.signed_url ? (
+                    <img
+                      src={item.signed_url}
+                      alt={item.subcategory ?? item.category}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#8A817A] text-lg">
+                      👗
+                    </div>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#8A817A] text-center truncate w-[88px] capitalize">
+                  {item.subcategory ?? item.category}
+                </p>
+                <p className="text-[10px] text-[#D8A8A0] font-medium">
+                  worn {item.wear_count ?? 0}×
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {/* CTA */}
-      <div className="mt-auto">
-        <p className="text-center text-sm text-[#8A817A] mb-3">
-          Let's build your look for today
-        </p>
+      <div className="mt-auto pt-4">
         <button
-          onClick={handleStartChat}
+          onClick={() => router.push("/chat/new")}
           className="w-full py-4 rounded-full bg-[#C97B5A] text-white font-semibold text-base active:opacity-80 transition-opacity shadow-md"
         >
           Chat with your AI Stylist ✨
