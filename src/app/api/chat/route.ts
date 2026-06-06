@@ -55,15 +55,29 @@ export async function POST(request: NextRequest) {
     .order("created_at", { ascending: true })
     .limit(20);
 
+  function contentToText(c: unknown): string {
+    if (typeof c === "string") return c;
+    const mc = c as MessageContent;
+    if (mc.type === "text") return mc.text ?? "";
+    if (mc.type === "clarify") {
+      // First element is the question, rest are chip options
+      const [question, ...options] = mc.questions ?? [];
+      return options.length
+        ? `${question} (options: ${options.join(", ")})`
+        : (question ?? "");
+    }
+    if (mc.type === "outfit") {
+      const n = mc.outfits?.length ?? 0;
+      return `[Suggested ${n} outfit${n !== 1 ? "s" : ""}]`;
+    }
+    return JSON.stringify(c);
+  }
+
   const history: ConversationTurn[] = (rawHistory ?? [])
     .slice(-10)
     .map((m) => ({
       role: m.role as "user" | "assistant",
-      content:
-        typeof m.content === "string"
-          ? m.content
-          : (m.content as MessageContent).text ??
-            JSON.stringify(m.content),
+      content: contentToText(m.content),
     }));
 
   // Fetch weather (server-side)
