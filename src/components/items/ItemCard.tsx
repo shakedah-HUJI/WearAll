@@ -13,13 +13,15 @@ interface ItemCardProps {
 
 export default function ItemCard({ item, onDelete, className }: ItemCardProps) {
   return (
-    <div className={cn("relative group rounded-[20px] overflow-hidden bg-[#ECE6DF] aspect-square", className)}>
+    <div className={cn("relative group rounded-[20px] overflow-hidden aspect-square", className)}
+         style={{ background: "radial-gradient(ellipse at 50% 30%, #FFFFF8 0%, #F5EFE7 55%, #EAE0D5 100%)" }}>
       {item.signed_url ? (
         <Image
           src={item.signed_url}
           alt={item.subcategory ?? item.category}
           fill
-          className="object-cover"
+          className="object-contain p-3"
+          style={{ filter: "drop-shadow(0 8px 18px rgba(43,38,34,0.22)) drop-shadow(0 2px 4px rgba(43,38,34,0.12))" }}
           sizes="(max-width: 390px) 45vw, 180px"
         />
       ) : (

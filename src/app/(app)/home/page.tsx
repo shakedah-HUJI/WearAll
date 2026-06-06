@@ -122,7 +122,21 @@ export default function HomePage() {
           </div>
         </div>
       )}
-      {weather && (
+      {locationDenied && (
+        <button
+          onClick={() => {
+            navigator.geolocation?.getCurrentPosition(
+              () => window.location.reload(),
+              () => {}
+            );
+          }}
+          className="flex items-center gap-2 w-full bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 text-left"
+        >
+          <span className="text-lg">📍</span>
+          <p className="text-xs text-[#8A817A]">Tap to allow location for live weather</p>
+        </button>
+      )}
+      {weather && !locationDenied && (
         <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 shadow-[0_1px_8px_rgba(43,38,34,0.05)]">
           <span className="text-2xl shrink-0">{weatherEmoji(weather.condition)}</span>
           <div className="flex-1 min-w-0">

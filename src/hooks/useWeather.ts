@@ -4,7 +4,11 @@ import useSWR from "swr";
 import { useEffect, useState } from "react";
 import { WeatherContext } from "@/types/chat";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`Weather API ${r.status}`);
+    return r.json();
+  });
 
 export function useWeather() {
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
