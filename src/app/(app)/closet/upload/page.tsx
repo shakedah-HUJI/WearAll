@@ -10,6 +10,26 @@ import UploadProgress, {
 } from "@/components/items/UploadProgress";
 import Button from "@/components/ui/Button";
 
+// Try background removal with a 20-second timeout; fall back to original on any failure
+async function removeBackgroundSafe(file: File): Promise<File> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(file), 20_000);
+
+    import("@imgly/background-removal")
+      .then(({ removeBackground }) => removeBackground(file))
+      .then((blob) => {
+        clearTimeout(timer);
+        // Use .png extension since background-removed output is always PNG
+        const pngName = file.name.replace(/\.[^.]+$/, ".png");
+        resolve(new File([blob], pngName, { type: "image/png" }));
+      })
+      .catch(() => {
+        clearTimeout(timer);
+        resolve(file);
+      });
+  });
+}
+
 export default function UploadPage() {
   const router = useRouter();
   const [files, setFiles] = useState<UploadFile[]>([]);
@@ -32,22 +52,19 @@ export default function UploadPage() {
     setUploading(true);
     setAllDone(false);
 
-    // Remove background from each file sequentially
+    // Remove background from each file sequentially (20s timeout per image)
     const processedFiles: File[] = [];
     for (let i = 0; i < accepted.length; i++) {
       const original = accepted[i];
       const nf = newFiles[i];
-      try {
-        const { removeBackground } = await import("@imgly/background-removal");
-        const blob = await removeBackground(original);
-        // Keep original filename so the API can match results back
-        processedFiles.push(new File([blob], original.name, { type: "image/png" }));
-      } catch {
-        // Fall back to original image if removal fails
-        processedFiles.push(original);
-      }
+      const processed = await removeBackgroundSafe(original);
+      processedFiles.push(processed);
       updateStatus(nf.id, { status: "uploading" });
     }
+
+    // Build a map from processed filename → original UploadFile id for result matching
+    const nameToId = new Map<string, string>();
+    processedFiles.forEach((pf, i) => nameToId.set(pf.name, newFiles[i].id));
 
     // Upload all processed files in one request
     const formData = new FormData();
@@ -57,9 +74,9 @@ export default function UploadPage() {
       const response = await fetch("/api/upload", { method: "POST", body: formData });
 
       if (!response.ok) {
-        const err = await response.json().catch(() => ({ error: "Upload failed" }));
+        const err = await response.json().catch(() => ({ error: "Upload failed — please try again" }));
         newFiles.forEach((nf) =>
-          updateStatus(nf.id, { status: "error", error: err.error ?? "Upload failed" })
+          updateStatus(nf.id, { status: "error", error: err.error ?? "Upload failed — please try again" })
         );
         return;
       }
@@ -67,9 +84,9 @@ export default function UploadPage() {
       const results = await response.json();
 
       results.forEach((result: { name: string; status: string; error?: string; item?: { category?: string } }) => {
-        const match = newFiles.find((nf) => nf.name === result.name);
-        if (match) {
-          updateStatus(match.id, {
+        const id = nameToId.get(result.name);
+        if (id) {
+          updateStatus(id, {
             status: result.status as UploadStatus,
             category: result.item?.category,
             error: result.error,
@@ -77,17 +94,15 @@ export default function UploadPage() {
         }
       });
 
-      // Mark any still-uploading files as done
-      if (results.length > 0 && results.every((r: { status: string }) => r.status === "done")) {
-        newFiles.forEach((nf) =>
-          setFiles((prev) =>
-            prev.map((f) => (f.id === nf.id && f.status === "uploading" ? { ...f, status: "done" } : f))
-          )
-        );
-      }
+      // Mark any still-uploading files as done (fallback for missing results)
+      newFiles.forEach((nf) =>
+        setFiles((prev) =>
+          prev.map((f) => (f.id === nf.id && f.status === "uploading" ? { ...f, status: "done" } : f))
+        )
+      );
     } catch {
       newFiles.forEach((nf) =>
-        updateStatus(nf.id, { status: "error", error: "Network error" })
+        updateStatus(nf.id, { status: "error", error: "Network error — please try again" })
       );
     } finally {
       setUploading(false);
