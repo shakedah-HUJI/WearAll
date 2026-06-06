@@ -46,15 +46,18 @@ export async function POST(request: NextRequest) {
       if (storageError) throw new Error(storageError.message);
 
       // Tag the item with AI (non-fatal — falls back to defaults)
+      // Skip if buffer is very large to avoid memory/timeout issues
       let tags = null;
-      try {
-        const base64 = buffer.toString("base64");
-        const mime = (file.type === "image/png" ? "image/png" : "image/jpeg") as
-          | "image/jpeg"
-          | "image/png";
-        tags = await tagClothingItem(base64, mime);
-      } catch {
-        // tagging failed — insert with defaults below
+      if (buffer.byteLength <= 3 * 1024 * 1024) {
+        try {
+          const base64 = buffer.toString("base64");
+          const mime = (file.type === "image/png" ? "image/png" : "image/jpeg") as
+            | "image/jpeg"
+            | "image/png";
+          tags = await tagClothingItem(base64, mime);
+        } catch {
+          // tagging failed — insert with defaults below
+        }
       }
 
       const { data: item, error: dbError } = await serviceClient

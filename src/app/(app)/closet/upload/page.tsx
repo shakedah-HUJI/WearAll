@@ -10,8 +10,8 @@ import UploadProgress, {
 } from "@/components/items/UploadProgress";
 import Button from "@/components/ui/Button";
 
-// Moderate resize before BG removal — 1600 px keeps enough detail for accurate edge detection
-async function compressImage(file: File, maxDim = 1600, quality = 0.92): Promise<File> {
+// Resize to 1000 px before BG removal — enough detail while keeping memory usage low
+async function compressImage(file: File, maxDim = 1000, quality = 0.88): Promise<File> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -47,7 +47,7 @@ async function removeBackgroundSafe(file: File): Promise<File> {
 
     import("@imgly/background-removal")
       .then(({ removeBackground }) =>
-        removeBackground(file, { model: "isnet", output: { format: "image/png", quality: 1 } })
+        removeBackground(file, { model: "isnet_quint8", output: { format: "image/png", quality: 1 } })
       )
       .then((blob) => {
         clearTimeout(timer);
