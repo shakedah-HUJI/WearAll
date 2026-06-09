@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useItems } from "@/hooks/useItems";
 import { useWeather } from "@/hooks/useWeather";
 import { createClient } from "@/lib/supabase/client";
 function weatherEmoji(condition: string): string {
@@ -20,7 +19,6 @@ export default function HomePage() {
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
-  const { allItems, isLoading: itemsLoading } = useItems();
   const { weather, isLoading: weatherLoading, city, saveCity, clearCity } = useWeather();
   const [cityInput, setCityInput] = useState("");
 
@@ -37,10 +35,6 @@ export default function HomePage() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-
-  const rarelyWorn = [...allItems]
-    .sort((a, b) => (a.wear_count ?? 0) - (b.wear_count ?? 0))
-    .slice(0, 5);
 
   return (
     <div className="flex flex-col min-h-screen px-5 pt-14 pb-28">
@@ -76,19 +70,32 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Greeting */}
-      <div className="mb-8">
-        <p className="text-sm text-[#8A817A] font-medium tracking-wide uppercase">{greeting}</p>
-        <h1 className="font-serif text-[2.1rem] leading-tight text-[#2B2622] italic mt-1">
-          {displayName === null ? (
-            <span className="inline-block w-36 h-9 bg-[#ECE6DF] rounded-lg animate-pulse" />
-          ) : (
-            <>Hello, {displayName || "there"}</>
-          )}
-        </h1>
-        <p className="text-[#8A817A] mt-2 text-sm leading-relaxed">
-          Here's a look at your wardrobe today.
-        </p>
+      {/* Greeting + profile circle */}
+      <div className="mb-8 flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-[#8A817A] font-medium tracking-wide uppercase">{greeting}</p>
+          <h1 className="font-serif text-[2.1rem] leading-tight text-[#2B2622] italic mt-1">
+            {displayName === null ? (
+              <span className="inline-block w-36 h-9 bg-[#ECE6DF] rounded-lg animate-pulse" />
+            ) : (
+              <>Hello, {displayName || "there"}</>
+            )}
+          </h1>
+          <p className="text-[#8A817A] mt-2 text-sm leading-relaxed">
+            Here's a look at your wardrobe today.
+          </p>
+        </div>
+        <div className="shrink-0 ml-4 mt-1">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] flex items-center justify-center shadow-[0_2px_10px_rgba(201,123,90,0.35)]">
+            {displayName === null ? (
+              <div className="w-5 h-5 bg-white/30 rounded-full animate-pulse" />
+            ) : (
+              <span className="text-white font-semibold text-lg leading-none">
+                {displayName ? displayName[0].toUpperCase() : "?"}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Destination weather */}
@@ -148,51 +155,6 @@ export default function HomePage() {
             </div>
           )}
         </>
-      )}
-
-      {/* Rarely worn */}
-      {!itemsLoading && rarelyWorn.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-semibold text-[#2B2622]">Rarely worn</p>
-            <button
-              onClick={() => router.push("/closet")}
-              className="text-xs text-[#8A817A]"
-            >
-              See all
-            </button>
-          </div>
-          <p className="text-xs text-[#8A817A] mb-3">These pieces deserve more love</p>
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-            {rarelyWorn.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => router.push("/closet")}
-                className="shrink-0 flex flex-col items-center gap-1.5"
-              >
-                <div className="w-[88px] h-[88px] rounded-[18px] overflow-hidden bg-[#ECE6DF]">
-                  {item.signed_url ? (
-                    <img
-                      src={item.signed_url}
-                      alt={item.subcategory ?? item.category}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#8A817A] text-lg">
-                      👗
-                    </div>
-                  )}
-                </div>
-                <p className="text-[11px] text-[#8A817A] text-center truncate w-[88px] capitalize">
-                  {item.subcategory ?? item.category}
-                </p>
-                <p className="text-[10px] text-[#D8A8A0] font-medium">
-                  worn {item.wear_count ?? 0}×
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
       )}
 
       {/* CTA */}

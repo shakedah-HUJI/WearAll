@@ -82,6 +82,10 @@ export default function ClosetPage() {
     toast("Item removed", "success");
   }
 
+  const rarelyWorn = [...allItems]
+    .sort((a, b) => (a.wear_count ?? 0) - (b.wear_count ?? 0))
+    .slice(0, 5);
+
   const grouped = CATEGORY_ORDER.reduce<Record<string, ClothingItem[]>>((acc, cat) => {
     const catItems = allItems.filter((i) => i.category === cat);
     if (catItems.length > 0) acc[cat] = catItems;
@@ -143,21 +147,54 @@ export default function ClosetPage() {
               <p className="text-[#8A817A] text-sm mt-1">Tap + to add your first item</p>
             </div>
           ) : (
-            Object.entries(grouped).map(([cat, catItems]) => (
-              <div key={cat}>
-                <div className="flex items-center justify-between px-5 pt-6 pb-2">
-                  <p className="text-[11px] font-semibold tracking-widest uppercase text-[#8A817A]">
-                    {CATEGORY_LABELS[cat as ItemCategory]}
-                  </p>
-                  <span className="text-[11px] text-[#C97B5A] font-semibold">{catItems.length}</span>
+            <>
+              {/* Rarely worn */}
+              {rarelyWorn.length > 0 && (
+                <div className="px-5 pt-5 pb-1">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-[#8A817A]">Rarely Worn</p>
+                    <p className="text-[11px] text-[#C97B5A]">These deserve more love</p>
+                  </div>
+                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+                    {rarelyWorn.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setEditingItem(item)}
+                        className="shrink-0 flex flex-col items-center gap-1"
+                      >
+                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F8F5F2]">
+                          {item.signed_url ? (
+                            <img src={item.signed_url} alt={item.subcategory ?? item.category} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[#C4BAB2] text-xl">👗</div>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-[#8A817A] capitalize truncate w-20 text-center mt-0.5">
+                          {item.subcategory ?? item.category}
+                        </p>
+                        <p className="text-[9px] text-[#C97B5A] font-medium">worn {item.wear_count ?? 0}×</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-px bg-[#ECE6DF]">
-                  {catItems.map((item) => (
-                    <ItemTile key={item.id} item={item} onTap={() => setEditingItem(item)} />
-                  ))}
+              )}
+
+              {Object.entries(grouped).map(([cat, catItems]) => (
+                <div key={cat}>
+                  <div className="flex items-center justify-between px-5 pt-6 pb-2">
+                    <p className="text-[11px] font-semibold tracking-widest uppercase text-[#8A817A]">
+                      {CATEGORY_LABELS[cat as ItemCategory]}
+                    </p>
+                    <span className="text-[11px] text-[#C97B5A] font-semibold">{catItems.length}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-px bg-[#ECE6DF]">
+                    {catItems.map((item) => (
+                      <ItemTile key={item.id} item={item} onTap={() => setEditingItem(item)} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </>
           )}
         </div>
       )}
