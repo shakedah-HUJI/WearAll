@@ -10,6 +10,20 @@ import EditItemSheet from "@/components/items/EditItemSheet";
 import Chip from "@/components/ui/Chip";
 import { useToast } from "@/components/ui/Toast";
 
+const CATEGORY_LABELS: Record<ItemCategory, string> = {
+  top: "Tops",
+  bottom: "Bottoms",
+  dress: "Dresses",
+  outerwear: "Outerwear",
+  shoes: "Shoes",
+  accessory: "Accessories",
+  other: "Other",
+};
+
+const CATEGORY_ORDER: ItemCategory[] = [
+  "top", "bottom", "dress", "outerwear", "shoes", "accessory", "other",
+];
+
 const CATEGORIES: { label: string; value: ItemCategory | "all" }[] = [
   { label: "All", value: "all" },
   { label: "Tops", value: "top" },
@@ -26,6 +40,12 @@ export default function ClosetPage() {
   const [activeCategory, setActiveCategory] = useState<ItemCategory | "all">("all");
   const [editingItem, setEditingItem] = useState<ClothingItem | null>(null);
   const { items, allItems, isLoading, deleteItem, mutate } = useItems({ category: activeCategory });
+
+  const categoryCounts = CATEGORY_ORDER.reduce<Partial<Record<ItemCategory, number>>>((acc, cat) => {
+    const count = allItems.filter((i) => i.category === cat).length;
+    if (count > 0) acc[cat] = count;
+    return acc;
+  }, {});
 
   async function handleSave(id: string, updates: Partial<ClothingItem>) {
     await fetch(`/api/items/${id}`, {
@@ -72,6 +92,30 @@ export default function ClosetPage() {
           </Chip>
         ))}
       </div>
+
+      {/* Wardrobe stats */}
+      {!isLoading && allItems.length > 0 && (
+        <div className="mx-4 mb-3 rounded-[20px] overflow-hidden shadow-[0_2px_16px_rgba(43,38,34,0.07),0_0_0_1px_#ECE6DF]">
+          <div className="h-1 bg-gradient-to-r from-[#C97B5A] to-[#D4856A]" />
+          <div className="bg-white p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-[#2B2622]">Your wardrobe</p>
+              <span className="text-sm font-semibold text-[#C97B5A]">{allItems.length} items</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(Object.entries(categoryCounts) as [ItemCategory, number][]).map(([cat, count]) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className="text-xs px-3 py-1.5 rounded-full bg-[#FBF7F2] border border-[#ECE6DF] text-[#2B2622] font-medium active:bg-[#ECE6DF] transition-colors"
+                >
+                  {CATEGORY_LABELS[cat]} · {count}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Grid — tap any photo to edit */}
       <div className="grid grid-cols-2 gap-3 p-4">
