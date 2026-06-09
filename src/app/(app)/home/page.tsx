@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useWeather } from "@/hooks/useWeather";
 import { createClient } from "@/lib/supabase/client";
 function weatherEmoji(condition: string): string {
@@ -17,6 +18,7 @@ function weatherEmoji(condition: string): string {
 export default function HomePage() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const { weather, isLoading: weatherLoading, city, saveCity, clearCity } = useWeather();
@@ -31,6 +33,10 @@ export default function HomePage() {
           setDisplayName(data?.display_name ? data.display_name.split(" ")[0] : "");
         });
     });
+    fetch("/api/profile/avatar")
+      .then(r => r.json())
+      .then(({ url }) => setAvatarUrl(url ?? null))
+      .catch(() => {});
   }, []);
 
   const hour = new Date().getHours();
@@ -85,17 +91,19 @@ export default function HomePage() {
             Here's a look at your wardrobe today.
           </p>
         </div>
-        <div className="shrink-0 ml-4 mt-1">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] flex items-center justify-center shadow-[0_2px_10px_rgba(201,123,90,0.35)]">
+        <Link href="/profile" className="shrink-0 ml-4 mt-1">
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#C97B5A] to-[#D4856A] flex items-center justify-center shadow-[0_2px_10px_rgba(201,123,90,0.35)]">
             {displayName === null ? (
               <div className="w-5 h-5 bg-white/30 rounded-full animate-pulse" />
+            ) : avatarUrl ? (
+              <img src={avatarUrl} alt="profile" className="w-full h-full object-cover" />
             ) : (
               <span className="text-white font-semibold text-lg leading-none">
                 {displayName ? displayName[0].toUpperCase() : "?"}
               </span>
             )}
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Destination weather */}

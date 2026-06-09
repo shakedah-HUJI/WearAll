@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Shirt, MessageCircle } from "lucide-react";
+import { Home, Shirt, MessageCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { href: "/home", label: "Home", icon: Home },
   { href: "/closet", label: "Closet", icon: Shirt },
   { href: "/chat/new", label: "Chat", icon: MessageCircle },
+  { href: "/profile", label: "Profile", icon: User },
 ];
 
 export default function BottomNav() {
