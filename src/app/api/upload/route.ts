@@ -5,28 +5,31 @@ import { randomUUID } from "crypto";
 
 const MAX_SIZE = 20 * 1024 * 1024;
 
-// Calls the remove.bg API (server-side) — returns the background-removed JPEG buffer.
+// Calls the remove.bg API (server-side) via base64 — more reliable than multipart in Node.js.
 // Falls back silently to the original buffer if the API key is missing or the call fails.
-async function removeBackground(imageBuffer: Buffer, mimeType: string): Promise<Buffer> {
+async function removeBackground(imageBuffer: Buffer): Promise<Buffer> {
   const apiKey = process.env.REMOVEBG_API_KEY;
-  if (!apiKey) return imageBuffer;
+  if (!apiKey) {
+    console.log("remove.bg: no API key set, skipping");
+    return imageBuffer;
+  }
 
   try {
-    const body = new FormData();
-    body.append(
-      "image_file",
-      new Blob([imageBuffer], { type: mimeType }),
-      "image.jpg"
-    );
-    body.append("size", "auto");
-    body.append("type", "product"); // optimised for standalone clothing/shoe photos
-    body.append("format", "jpg");
-    body.append("bg_color", "FFFFFF"); // white studio background on output
+    const params = new URLSearchParams({
+      image_file_b64: imageBuffer.toString("base64"),
+      size: "auto",
+      type: "product",
+      format: "jpg",
+      bg_color: "FFFFFF",
+    });
 
     const res = await fetch("https://api.remove.bg/v1.0/removebg", {
       method: "POST",
-      headers: { "X-Api-Key": apiKey },
-      body,
+      headers: {
+        "X-Api-Key": apiKey,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
     });
 
     if (!res.ok) {
@@ -35,7 +38,9 @@ async function removeBackground(imageBuffer: Buffer, mimeType: string): Promise<
       return imageBuffer;
     }
 
-    return Buffer.from(await res.arrayBuffer());
+    const result = Buffer.from(await res.arrayBuffer());
+    console.log(`remove.bg: success, output ${result.byteLength} bytes`);
+    return result;
   } catch (err) {
     console.error("remove.bg call failed:", err);
     return imageBuffer;
@@ -81,7 +86,7 @@ export async function POST(request: NextRequest) {
       const rawBuffer = Buffer.from(await file.arrayBuffer());
 
       // Remove background via dedicated AI API; falls back to original on any error
-      const cleanBuffer = await removeBackground(rawBuffer, file.type || "image/jpeg");
+      const cleanBuffer = await removeBackground(rawBuffer);
 
       const storagePath = `${user.id}/${randomUUID()}.jpg`;
 
