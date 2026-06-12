@@ -11,6 +11,9 @@ import UploadProgress, {
 import Button from "@/components/ui/Button";
 
 // ── Color detection ───────────────────────────────────────────────────────────
+// Runs client-side on the compressed original image before upload.
+// Clothing fills most of the photo; plain floors/walls are achromatic and
+// are separated out before the dominant-hue search, so they don't bias results.
 
 const CLOTHING_COLORS = [
   { name: "black",      r: 20,  g: 20,  b: 20  },
@@ -51,7 +54,6 @@ const CLOTHING_COLORS = [
   { name: "sand",       r: 220, g: 200, b: 155 },
 ];
 
-// Convert RGB (0-255) to HSL (h: 0-360, s: 0-1, l: 0-1)
 function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
   const rn = r / 255, gn = g / 255, bn = b / 255;
   const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
@@ -66,20 +68,20 @@ function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
   return [h * 360, s, l];
 }
 
-// HSL-aware nearest color match.
-// Key insight: dark navy (r=15,g=25,b=50) and black (r=20,g=20,b=20) look almost
-// identical in weighted-RGB space but have very different HSL hues — this metric
-// correctly ranks navy pixels nearest to "navy" regardless of luminance.
+// HSL-space nearest-color match.
+// Dark navy (r=15,g=25,b=50) vs black (r=20,g=20,b=20):
+//   — in weighted RGB they look almost identical (dist ≈ 40)
+//   — in HSL navy has hue 222° while black has S=0, making them far apart
+// This metric correctly labels any shade of navy as "navy" regardless of shadow depth.
 function nearestColorName(r: number, g: number, b: number): string {
   const [h1, s1, l1] = rgbToHsl(r, g, b);
   let best = CLOTHING_COLORS[0];
   let bestDist = Infinity;
   for (const c of CLOTHING_COLORS) {
     const [h2, s2, l2] = rgbToHsl(c.r, c.g, c.b);
-    const dh = Math.min(Math.abs(h1 - h2), 360 - Math.abs(h1 - h2)) / 180; // 0-1
+    const dh = Math.min(Math.abs(h1 - h2), 360 - Math.abs(h1 - h2)) / 180;
     const ds = Math.abs(s1 - s2);
     const dl = Math.abs(l1 - l2);
-    // Hue matters most (weighted by average saturation), then saturation, then lightness
     const satMean = (s1 + s2) / 2;
     const dist = satMean * dh + 0.5 * ds + 0.3 * dl;
     if (dist < bestDist) { bestDist = dist; best = c; }
@@ -87,24 +89,22 @@ function nearestColorName(r: number, g: number, b: number): string {
   return best.name;
 }
 
-// Separate chromatic (has hue) from achromatic (grey/black/white) pixels.
-// Find the dominant chromatic color; fall back to achromatic if the item has no real hue.
+// Separate chromatic (has hue, RGB spread > 15) from achromatic pixels.
+// Threshold 15 — low enough to capture dark navy (spread ≈ 16–60), high enough to
+// exclude true greys (spread ≈ 0–8) and near-white floors (spread ≈ 0).
 function detectDominantColor(data: Uint8ClampedArray, width: number, height: number): string {
   const chromHist = new Map<string, { count: number; r: number; g: number; b: number }>();
   let achrR = 0, achrG = 0, achrB = 0, achrN = 0;
 
-  for (let i = 0; i < width * height * 4; i += 16) { // sample every 4th pixel
-    if (data[i + 3] < 128) continue; // skip transparent
+  for (let i = 0; i < width * height * 4; i += 16) {
+    const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+    if (a < 128) continue;
 
-    const r = data[i], g = data[i + 1], b = data[i + 2];
-    // RGB "saturation" = spread between channels — zero for greys, high for vivid colors
-    const chromaSat = Math.max(r, g, b) - Math.min(r, g, b);
+    const spread = Math.max(r, g, b) - Math.min(r, g, b);
 
-    if (chromaSat < 20) {
-      // Achromatic (grey/black/white/off-white)
+    if (spread < 15) {
       achrR += r; achrG += g; achrB += b; achrN++;
     } else {
-      // Chromatic — bucket by 4-bit quantized RGB
       const key = `${r >> 4},${g >> 4},${b >> 4}`;
       const e = chromHist.get(key) ?? { count: 0, r: 0, g: 0, b: 0 };
       e.count++; e.r += r; e.g += g; e.b += b;
@@ -116,95 +116,27 @@ function detectDominantColor(data: Uint8ClampedArray, width: number, height: num
   const total = totalChrom + achrN;
   if (total === 0) return "";
 
-  // If >15% of visible pixels have hue, use chromatic analysis
   if (totalChrom > total * 0.15) {
     let maxCount = 0, dr = 0, dg = 0, db = 0;
     for (const e of chromHist.values()) {
       if (e.count > maxCount) {
         maxCount = e.count;
-        dr = e.r / e.count;
-        dg = e.g / e.count;
-        db = e.b / e.count;
+        dr = e.r / e.count; dg = e.g / e.count; db = e.b / e.count;
       }
     }
     return nearestColorName(dr, dg, db);
   }
 
-  // Achromatic item (solid black/white/grey)
   if (achrN === 0) return "";
   return nearestColorName(achrR / achrN, achrG / achrN, achrB / achrN);
 }
 
-// ── Alpha dilation — fixes clipped edges from BG removal ─────────────────────
-// Expands the foreground mask outward by `radius` px via a fast separable max-filter.
-// 8px handles even aggressive model clipping without introducing visible halos.
-function dilateAlphaInPlace(data: Uint8ClampedArray, width: number, height: number, radius: number): void {
-  const alpha = new Uint8Array(width * height);
-  for (let i = 0; i < width * height; i++) alpha[i] = data[i * 4 + 3];
-
-  // Horizontal pass
-  const pass1 = new Uint8Array(width * height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      let max = 0;
-      const x0 = Math.max(0, x - radius), x1 = Math.min(width - 1, x + radius);
-      for (let nx = x0; nx <= x1; nx++) {
-        const v = alpha[y * width + nx];
-        if (v > max) max = v;
-      }
-      pass1[y * width + x] = max;
-    }
-  }
-
-  // Vertical pass — write directly into pixel alpha channel
-  for (let y = 0; y < height; y++) {
-    const y0 = Math.max(0, y - radius), y1 = Math.min(height - 1, y + radius);
-    for (let x = 0; x < width; x++) {
-      let max = 0;
-      for (let ny = y0; ny <= y1; ny++) {
-        const v = pass1[ny * width + x];
-        if (v > max) max = v;
-      }
-      data[(y * width + x) * 4 + 3] = max;
-    }
-  }
-}
-
-// ── Composite: dilation + color detect on BG-removed image ───────────────────
-function processRemovedBg(blob: Blob, originalName: string): Promise<{ file: File; color: string }> {
-  return new Promise((resolve) => {
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      const w = img.naturalWidth, h = img.naturalHeight;
-      const canvas = document.createElement("canvas");
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, w, h);
-
-      // Detect color BEFORE dilation — clean foreground pixels only
-      const color = detectDominantColor(imageData.data, w, h);
-      // Expand mask 8px to recover any clipped edges (soles, cuffs, etc.)
-      dilateAlphaInPlace(imageData.data, w, h, 8);
-      ctx.putImageData(imageData, 0, 0);
-
-      canvas.toBlob((b) => {
-        const base = originalName.replace(/\.[^.]+$/, "");
-        resolve({ file: new File([b ?? blob], `${base}.png`, { type: "image/png" }), color });
-      }, "image/png");
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve({ file: new File([blob], originalName, { type: "image/png" }), color: "" });
-    };
-    img.src = url;
-  });
-}
-
-// ── Compress to white-background JPEG ────────────────────────────────────────
-async function compressImage(file: File, maxDim = 1200, quality = 0.88): Promise<File> {
+// ── Image prep: compress to JPEG + detect dominant color in one canvas pass ──
+function prepareImage(
+  file: File,
+  maxDim = 1200,
+  quality = 0.88
+): Promise<{ compressed: File; color: string }> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -219,16 +151,23 @@ async function compressImage(file: File, maxDim = 1200, quality = 0.88): Promise
       ctx.fillStyle = "#FFFFFF";
       ctx.fillRect(0, 0, w, h);
       ctx.drawImage(img, 0, 0, w, h);
+
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const color = detectDominantColor(imageData.data, w, h);
+
       canvas.toBlob(
         (blob) => {
-          if (!blob) { resolve(file); return; }
-          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+          if (!blob) { resolve({ compressed: file, color }); return; }
+          resolve({
+            compressed: new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }),
+            color,
+          });
         },
         "image/jpeg",
         quality
       );
     };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve({ compressed: file, color: "" }); };
     img.src = url;
   });
 }
@@ -249,58 +188,26 @@ export default function UploadPage() {
     const newFiles: UploadFile[] = accepted.map((f) => ({
       id: Math.random().toString(36).slice(2),
       name: f.name,
-      status: "processing" as UploadStatus,
+      status: "uploading" as UploadStatus,
     }));
 
     setFiles((prev) => [...prev, ...newFiles]);
     setUploading(true);
     setAllDone(false);
 
-    // Load BG removal library (dynamic import keeps initial bundle small)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let removeBackground: ((img: File) => Promise<Blob>) | null = null;
-    try {
-      const mod = await import("@imgly/background-removal");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      removeBackground = (img: File) => (mod.removeBackground as any)(img, {
-        output: { format: "image/png", quality: 1 },
-      }) as Promise<Blob>;
-    } catch {
-      // Library failed to load — upload originals
+    // Compress + detect color (single canvas pass per file)
+    const prepared: { compressed: File; color: string }[] = [];
+    for (const f of accepted) {
+      prepared.push(await prepareImage(f));
     }
-
-    // Step 1: BG removal + 8px edge dilation + HSL color detection (per file)
-    const processedRaw: File[] = [];
-    const detectedColors: string[] = [];
-
-    for (let i = 0; i < accepted.length; i++) {
-      try {
-        if (removeBackground) {
-          const blob = await removeBackground(accepted[i]);
-          const { file, color } = await processRemovedBg(blob, accepted[i].name);
-          processedRaw.push(file);
-          detectedColors.push(color);
-        } else {
-          processedRaw.push(accepted[i]);
-          detectedColors.push("");
-        }
-      } catch {
-        processedRaw.push(accepted[i]);
-        detectedColors.push("");
-      }
-      updateStatus(newFiles[i].id, { status: "uploading" });
-    }
-
-    // Step 2: Compress to white-bg JPEG
-    const compressed: File[] = [];
-    for (const f of processedRaw) compressed.push(await compressImage(f));
 
     const nameToId = new Map<string, string>();
-    compressed.forEach((f, i) => nameToId.set(f.name, newFiles[i].id));
+    prepared.forEach(({ compressed }, i) => nameToId.set(compressed.name, newFiles[i].id));
 
     const formData = new FormData();
-    compressed.forEach((f) => formData.append("files", f));
-    formData.append("colorHints", JSON.stringify(detectedColors));
+    prepared.forEach(({ compressed }) => formData.append("files", compressed));
+    // Send detected colors as ordered fallback array for the server
+    formData.append("colorHints", JSON.stringify(prepared.map((p) => p.color)));
 
     try {
       const response = await fetch("/api/upload", { method: "POST", body: formData });
@@ -308,7 +215,7 @@ export default function UploadPage() {
       if (!response.ok) {
         const err = await response.json().catch(() => ({ error: "Upload failed — please try again" }));
         newFiles.forEach((nf) =>
-          updateStatus(nf.id, { status: "error", error: err.error ?? "Upload failed — please try again" })
+          updateStatus(nf.id, { status: "error", error: err.error ?? "Upload failed" })
         );
         return;
       }
@@ -326,6 +233,7 @@ export default function UploadPage() {
         }
       });
 
+      // Fallback: mark any still-uploading as done
       newFiles.forEach((nf) =>
         setFiles((prev) =>
           prev.map((f) => (f.id === nf.id && f.status === "uploading" ? { ...f, status: "done" } : f))
@@ -381,7 +289,7 @@ export default function UploadPage() {
         <div className="mt-6">
           {uploading && (
             <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
-              Processing…
+              Uploading…
             </p>
           )}
           {!uploading && allDone && (
