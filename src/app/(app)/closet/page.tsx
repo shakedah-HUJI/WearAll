@@ -53,7 +53,7 @@ function ItemTile({ item, onTap }: { item: ClothingItem; onTap: () => void }) {
           {item.subcategory ?? item.category}
         </p>
         {item.primary_color && (
-          <p className="text-[10px] text-[#999999] mt-0.5 capitalize">{item.primary_color}</p>
+          <p className="text-[10px] text-[#AAAAAA] mt-0.5 uppercase tracking-widest">{item.primary_color}</p>
         )}
       </div>
     </button>

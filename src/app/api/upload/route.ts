@@ -22,8 +22,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "No files provided" }, { status: 400 });
   }
 
+  // Client-detected colors (ordered by file index) — fallback when AI tagger skips large files
+  let colorHints: string[] = [];
+  try {
+    const raw = formData.get("colorHints");
+    if (raw) colorHints = JSON.parse(raw as string);
+  } catch { /* ignore */ }
+
   const serviceClient = createServiceClient();
   const results = [];
+  let fileIndex = 0;
 
   for (const file of files) {
     if (file.size > MAX_SIZE) {
@@ -67,7 +75,7 @@ export async function POST(request: NextRequest) {
           image_url: storagePath,
           category: tags?.category ?? "other",
           subcategory: tags?.subcategory ?? null,
-          primary_color: tags?.primary_color ?? null,
+          primary_color: tags?.primary_color ?? colorHints[fileIndex] ?? null,
           secondary_colors: tags?.secondary_colors ?? [],
           pattern: tags?.pattern ?? null,
           formality: tags?.formality ?? "casual",
@@ -87,6 +95,7 @@ export async function POST(request: NextRequest) {
       console.error("Upload error:", message, err);
       results.push({ name: file.name, status: "error", error: message });
     }
+    fileIndex++;
   }
 
   return NextResponse.json(results);
