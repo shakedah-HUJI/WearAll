@@ -35,7 +35,7 @@ const FILTER_TABS: { label: string; value: ItemCategory | "all" }[] = [
 function ItemTile({ item, onTap }: { item: ClothingItem; onTap: () => void }) {
   return (
     <button onClick={onTap} className="flex flex-col bg-white text-left w-full">
-      <div className="aspect-square w-full bg-[#F5F5F5] overflow-hidden">
+      <div className="aspect-square w-full bg-[#F5F5F5] overflow-hidden relative">
         {item.signed_url ? (
           <img
             src={item.signed_url}
@@ -47,14 +47,18 @@ function ItemTile({ item, onTap }: { item: ClothingItem; onTap: () => void }) {
             —
           </div>
         )}
+        {item.primary_color && (
+          <div className="absolute bottom-1.5 right-1.5 bg-black/50 px-[5px] py-[3px]">
+            <span className="text-[8px] text-white uppercase tracking-[0.1em] font-medium leading-none">
+              {item.primary_color}
+            </span>
+          </div>
+        )}
       </div>
       <div className="px-2 pt-2 pb-3">
         <p className="text-xs font-semibold text-[#111111] capitalize truncate leading-tight">
           {item.subcategory ?? item.category}
         </p>
-        {item.primary_color && (
-          <p className="text-[10px] text-[#AAAAAA] mt-0.5 uppercase tracking-widest">{item.primary_color}</p>
-        )}
       </div>
     </button>
   );
