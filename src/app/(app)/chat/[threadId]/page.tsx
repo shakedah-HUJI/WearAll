@@ -117,11 +117,20 @@ export default function ChatPage({ params }: PageProps) {
       {/* Message thread */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
         {messages.length === 0 && !isLoading && (
-          <div className="flex flex-col items-center justify-center h-full text-center py-12 gap-3">
-            <p className="text-4xl">👗</p>
-            <p className="text-[#111111] font-semibold">What's the plan today?</p>
-            <p className="text-[#6B7280] text-sm max-w-[220px]">
-              Tell me your schedule and I'll put together some looks from your closet.
+          <div className="flex flex-col items-center justify-center h-full text-center py-16 gap-4">
+            <div className="w-16 h-16 rounded-full bg-[#1B2A4A] flex items-center justify-center shadow-[0_4px_16px_rgba(27,42,74,0.2)]">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3C12 3 15 3 15 6C15 7.7 13.7 9 12 9" />
+                <path d="M12 9L2 19" /><path d="M12 9L22 19" />
+                <line x1="2" y1="19" x2="22" y2="19" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-semibold text-[#111111] text-lg tracking-tight">Mia</p>
+              <p className="text-[11px] text-[#6B7280] font-medium uppercase tracking-widest mt-0.5">Your AI Stylist</p>
+            </div>
+            <p className="text-[#6B7280] text-sm max-w-[200px] leading-relaxed">
+              Tell me your plans and I'll build looks from your closet.
             </p>
           </div>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { SendHorizonal } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -38,28 +38,41 @@ export default function ChatInput({ onSubmit, disabled, placeholder }: ChatInput
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
   }
 
+  const hasText = value.trim().length > 0;
+
   return (
-    <div className="flex items-end gap-2 px-4 py-3 bg-[#FFFFFF] border-t border-[#E5E7EB]">
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={handleInput}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        rows={1}
-        placeholder={placeholder ?? "Tell me about your day…"}
+    <div className="px-4 py-3 bg-white border-t border-[#E5E7EB]">
+      <div
         className={cn(
-          "flex-1 resize-none rounded-[16px] border border-[#E5E7EB] px-4 py-2.5 text-sm text-[#111111] placeholder-[#6B7280] bg-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent leading-relaxed",
-          "max-h-[120px] overflow-y-auto"
+          "flex items-end gap-2 bg-[#F9FAFB] border rounded-2xl px-4 py-3 transition-all duration-150",
+          hasText && !disabled
+            ? "border-[#1B2A4A] ring-1 ring-[#1B2A4A]/20"
+            : "border-[#E5E7EB]"
         )}
-      />
-      <button
-        onClick={handleSubmit}
-        disabled={!value.trim() || disabled}
-        className="w-10 h-10 rounded-full bg-[#1B2A4A] flex items-center justify-center text-white disabled:opacity-40 active:scale-95 transition-transform shrink-0"
       >
-        <SendHorizonal size={18} />
-      </button>
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={handleInput}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          rows={1}
+          placeholder={placeholder ?? "Ask Mia anything…"}
+          className="flex-1 resize-none bg-transparent text-sm text-[#111111] placeholder-[#9CA3AF] focus:outline-none leading-relaxed max-h-[120px] overflow-y-auto"
+        />
+        <button
+          onClick={handleSubmit}
+          disabled={!hasText || disabled}
+          className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center shrink-0 mb-0.5 transition-all duration-150",
+            hasText && !disabled
+              ? "bg-[#1B2A4A] text-white active:scale-90"
+              : "bg-[#E5E7EB] text-[#9CA3AF]"
+          )}
+        >
+          <ArrowUp size={16} strokeWidth={2.5} />
+        </button>
+      </div>
     </div>
   );
 }
