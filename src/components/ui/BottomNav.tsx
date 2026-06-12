@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Shirt, MessageCircle, User } from "lucide-react";
+import { Home, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import HangerIcon from "@/components/ui/HangerIcon";
 
 const tabs = [
-  { href: "/home", label: "Home", icon: Home },
-  { href: "/closet", label: "Closet", icon: Shirt },
-  { href: "/chat/new", label: "Chat", icon: MessageCircle },
-  { href: "/profile", label: "Profile", icon: User },
+  { href: "/home", label: "Home", icon: Home, custom: false },
+  { href: "/closet", label: "Closet", icon: null, custom: true },
+  { href: "/chat/new", label: "Chat", icon: null, custom: true },
+  { href: "/profile", label: "Profile", icon: User, custom: false },
 ];
 
 export default function BottomNav() {
@@ -18,7 +19,7 @@ export default function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-[#FFFDFB]/90 backdrop-blur-xl border-t border-[#ECE6DF]/60 z-40 shadow-[0_-4px_20px_rgba(43,38,34,0.06)]">
       <div className="flex items-center justify-around px-2 pb-safe">
-        {tabs.map(({ href, label, icon: Icon }) => {
+        {tabs.map(({ href, label, icon: Icon, custom }) => {
           const active =
             href === "/chat/new"
               ? pathname.startsWith("/chat")
@@ -32,7 +33,10 @@ export default function BottomNav() {
                 active ? "text-[#C97B5A]" : "text-[#8A817A]"
               )}
             >
-              <Icon size={22} strokeWidth={active ? 2.2 : 1.8} />
+              {custom
+                ? <HangerIcon size={22} strokeWidth={active ? 2.2 : 1.8} />
+                : Icon && <Icon size={22} strokeWidth={active ? 2.2 : 1.8} />
+              }
               <span className={cn("text-[10px] font-medium mt-0.5", active && "font-semibold")}>
                 {label}
               </span>

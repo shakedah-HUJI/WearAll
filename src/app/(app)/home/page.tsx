@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useWeather } from "@/hooks/useWeather";
 import { createClient } from "@/lib/supabase/client";
+import WearAllLogo from "@/components/ui/WearAllLogo";
 function weatherEmoji(condition: string): string {
   if (condition.includes("clear")) return "☀️";
   if (condition.includes("cloud")) return "⛅";
@@ -44,6 +45,9 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen px-5 pt-14 pb-28">
+
+      {/* Logo */}
+      <WearAllLogo className="mb-7" />
 
       {/* Name prompt */}
       {displayName === "" && (
