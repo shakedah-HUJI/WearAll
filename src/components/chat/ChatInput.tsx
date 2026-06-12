@@ -39,7 +39,7 @@ export default function ChatInput({ onSubmit, disabled, placeholder }: ChatInput
   }
 
   return (
-    <div className="flex items-end gap-2 px-4 py-3 bg-[#FFFDFB] border-t border-[#ECE6DF]">
+    <div className="flex items-end gap-2 px-4 py-3 bg-[#FFFFFF] border-t border-[#E5E7EB]">
       <textarea
         ref={textareaRef}
         value={value}
@@ -49,14 +49,14 @@ export default function ChatInput({ onSubmit, disabled, placeholder }: ChatInput
         rows={1}
         placeholder={placeholder ?? "Tell me about your day…"}
         className={cn(
-          "flex-1 resize-none rounded-[16px] border border-[#ECE6DF] px-4 py-2.5 text-sm text-[#2B2622] placeholder-[#8A817A] bg-[#FBF7F2] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] focus:border-transparent leading-relaxed",
+          "flex-1 resize-none rounded-[16px] border border-[#E5E7EB] px-4 py-2.5 text-sm text-[#111111] placeholder-[#6B7280] bg-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent leading-relaxed",
           "max-h-[120px] overflow-y-auto"
         )}
       />
       <button
         onClick={handleSubmit}
         disabled={!value.trim() || disabled}
-        className="w-10 h-10 rounded-full bg-[#C97B5A] flex items-center justify-center text-white disabled:opacity-40 active:scale-95 transition-transform shrink-0"
+        className="w-10 h-10 rounded-full bg-[#1B2A4A] flex items-center justify-center text-white disabled:opacity-40 active:scale-95 transition-transform shrink-0"
       >
         <SendHorizonal size={18} />
       </button>

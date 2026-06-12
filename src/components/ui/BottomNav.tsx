@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, User } from "lucide-react";
+import { Home, User, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import HangerIcon from "@/components/ui/HangerIcon";
 
 const tabs = [
   { href: "/home", label: "Home", icon: Home, custom: false },
   { href: "/closet", label: "Closet", icon: null, custom: true },
-  { href: "/chat/new", label: "Chat", icon: null, custom: true },
+  { href: "/chat/new", label: "Chat", icon: Sparkles, custom: false },
   { href: "/profile", label: "Profile", icon: User, custom: false },
 ];
 
@@ -17,7 +17,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-[#FFFDFB]/90 backdrop-blur-xl border-t border-[#ECE6DF]/60 z-40 shadow-[0_-4px_20px_rgba(43,38,34,0.06)]">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-[#FFFFFF]/90 backdrop-blur-xl border-t border-[#E5E7EB]/60 z-40 shadow-[0_-4px_20px_rgba(17,17,17,0.06)]">
       <div className="flex items-center justify-around px-2 pb-safe">
         {tabs.map(({ href, label, icon: Icon, custom }) => {
           const active =
@@ -30,7 +30,7 @@ export default function BottomNav() {
               href={href}
               className={cn(
                 "flex flex-col items-center py-3 px-5 transition-colors",
-                active ? "text-[#C97B5A]" : "text-[#8A817A]"
+                active ? "text-[#1B2A4A]" : "text-[#6B7280]"
               )}
             >
               {custom
@@ -43,7 +43,7 @@ export default function BottomNav() {
               <span
                 className={cn(
                   "mt-1 h-0.5 rounded-full transition-all duration-200",
-                  active ? "w-4 bg-[#C97B5A]" : "w-0 bg-transparent"
+                  active ? "w-4 bg-[#1B2A4A]" : "w-0 bg-transparent"
                 )}
               />
             </Link>

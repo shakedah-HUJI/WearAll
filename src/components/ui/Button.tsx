@@ -21,9 +21,9 @@ export default function Button({
       className={cn(
         "rounded-full font-semibold transition-all active:scale-[0.97] disabled:opacity-50",
         {
-          "bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white shadow-[0_4px_20px_rgba(201,123,90,0.38)] hover:shadow-[0_6px_24px_rgba(201,123,90,0.48)]": variant === "primary",
-          "border border-[#C97B5A] text-[#C97B5A] bg-transparent": variant === "secondary",
-          "text-[#8A817A] bg-transparent": variant === "ghost",
+          "bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white shadow-[0_4px_20px_rgba(27,42,74,0.38)] hover:shadow-[0_6px_24px_rgba(27,42,74,0.48)]": variant === "primary",
+          "border border-[#1B2A4A] text-[#1B2A4A] bg-transparent": variant === "secondary",
+          "text-[#6B7280] bg-transparent": variant === "ghost",
           "px-4 py-2 text-sm": size === "sm",
           "px-5 py-3 text-base": size === "md",
           "px-6 py-3.5 text-base w-full": size === "lg",

@@ -8,7 +8,7 @@ export default function Card({ radius = "md", className, children, ...props }: C
   return (
     <div
       className={cn(
-        "bg-[#FFFDFB] shadow-sm",
+        "bg-[#FFFFFF] shadow-sm",
         radius === "md" ? "rounded-[20px]" : "rounded-[24px]",
         className
       )}

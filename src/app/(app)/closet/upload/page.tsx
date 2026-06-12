@@ -125,8 +125,8 @@ export default function UploadPage() {
   return (
     <div className="flex flex-col min-h-screen px-5 pt-14 pb-8">
       <div className="mb-8">
-        <h1 className="font-serif text-[1.85rem] italic leading-tight text-[#2B2622]">Add your wardrobe</h1>
-        <p className="text-[#8A817A] mt-1 text-sm leading-relaxed">
+        <h1 className="font-sans font-bold text-[1.85rem] leading-tight text-[#111111]">Add your wardrobe</h1>
+        <p className="text-[#6B7280] mt-1 text-sm leading-relaxed">
           One item per photo works best. The AI will automatically tag the category, colour, and style.
         </p>
       </div>
@@ -135,18 +135,18 @@ export default function UploadPage() {
         <div
           {...getRootProps()}
           className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-[24px] p-10 cursor-pointer transition-colors ${
-            isDragActive ? "border-[#C97B5A] bg-[#C97B5A]/5" : "border-[#ECE6DF] bg-white"
+            isDragActive ? "border-[#1B2A4A] bg-[#1B2A4A]/5" : "border-[#E5E7EB] bg-white"
           }`}
         >
           <input {...getInputProps()} />
-          <div className="w-14 h-14 rounded-full bg-[#FBF7F2] flex items-center justify-center">
-            <ImagePlus size={26} className="text-[#C97B5A]" />
+          <div className="w-14 h-14 rounded-full bg-[#F9FAFB] flex items-center justify-center">
+            <ImagePlus size={26} className="text-[#1B2A4A]" />
           </div>
           <div className="text-center">
-            <p className="font-medium text-[#2B2622]">
+            <p className="font-medium text-[#111111]">
               {isDragActive ? "Drop photos here" : "Add clothing photos"}
             </p>
-            <p className="text-sm text-[#8A817A] mt-0.5">Tap to select or take a photo</p>
+            <p className="text-sm text-[#6B7280] mt-0.5">Tap to select or take a photo</p>
           </div>
         </div>
       )}
@@ -154,12 +154,12 @@ export default function UploadPage() {
       {files.length > 0 && (
         <div className="mt-6">
           {uploading && (
-            <p className="text-xs font-semibold text-[#8A817A] uppercase tracking-wide mb-3">
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
               Uploading…
             </p>
           )}
           {!uploading && allDone && (
-            <p className="text-xs font-semibold text-[#8A817A] uppercase tracking-wide mb-3">
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
               Done
             </p>
           )}
@@ -171,7 +171,7 @@ export default function UploadPage() {
         <div className="mt-8 flex flex-col gap-3">
           <div {...getRootProps()}>
             <input {...getInputProps()} />
-            <button className="w-full py-3 rounded-full border border-[#ECE6DF] text-sm font-medium text-[#2B2622]">
+            <button className="w-full py-3 rounded-full border border-[#E5E7EB] text-sm font-medium text-[#111111]">
               Add more items
             </button>
           </div>

@@ -51,14 +51,14 @@ export default function HomePage() {
 
       {/* Name prompt */}
       {displayName === "" && (
-        <div className="mb-6 bg-white rounded-[20px] border border-[#ECE6DF] p-4">
-          <p className="text-sm font-semibold text-[#2B2622] mb-2">What's your name?</p>
+        <div className="mb-6 bg-white rounded-[20px] border border-[#E5E7EB] p-4">
+          <p className="text-sm font-semibold text-[#111111] mb-2">What's your name?</p>
           <div className="flex gap-2">
             <input
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               placeholder="e.g. Sofia"
-              className="flex-1 px-4 py-2.5 rounded-[14px] border border-[#ECE6DF] text-sm text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A]"
+              className="flex-1 px-4 py-2.5 rounded-[14px] border border-[#E5E7EB] text-sm text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A]"
             />
             <button
               disabled={!nameInput.trim() || savingName}
@@ -72,7 +72,7 @@ export default function HomePage() {
                 setDisplayName(nameInput.trim().split(" ")[0]);
                 setSavingName(false);
               }}
-              className="px-4 py-2.5 rounded-full bg-[#C97B5A] text-white text-sm font-semibold disabled:opacity-40"
+              className="px-4 py-2.5 rounded-full bg-[#1B2A4A] text-white text-sm font-semibold disabled:opacity-40"
             >
               {savingName ? "…" : "Save"}
             </button>
@@ -83,20 +83,20 @@ export default function HomePage() {
       {/* Greeting + profile circle */}
       <div className="mb-8 flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-[#8A817A] font-medium tracking-wide uppercase">{greeting}</p>
-          <h1 className="font-serif text-[2.1rem] leading-tight text-[#2B2622] italic mt-1">
+          <p className="text-sm text-[#6B7280] font-medium tracking-wide uppercase">{greeting}</p>
+          <h1 className="font-sans font-bold text-[2.1rem] leading-tight text-[#111111] mt-1">
             {displayName === null ? (
-              <span className="inline-block w-36 h-9 bg-[#ECE6DF] rounded-lg animate-pulse" />
+              <span className="inline-block w-36 h-9 bg-[#E5E7EB] rounded-lg animate-pulse" />
             ) : (
               <>Hello, {displayName || "there"}</>
             )}
           </h1>
-          <p className="text-[#8A817A] mt-2 text-sm leading-relaxed">
+          <p className="text-[#6B7280] mt-2 text-sm leading-relaxed">
             Here's a look at your wardrobe today.
           </p>
         </div>
         <Link href="/profile" className="shrink-0 ml-4 mt-1">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#C97B5A] to-[#D4856A] flex items-center justify-center shadow-[0_2px_10px_rgba(201,123,90,0.35)]">
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] flex items-center justify-center shadow-[0_2px_10px_rgba(27,42,74,0.35)]">
             {displayName === null ? (
               <div className="w-5 h-5 bg-white/30 rounded-full animate-pulse" />
             ) : avatarUrl ? (
@@ -112,8 +112,8 @@ export default function HomePage() {
 
       {/* Destination weather */}
       {!city ? (
-        <div className="bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5">
-          <p className="text-xs text-[#8A817A] mb-2">📍 Where are you going today?</p>
+        <div className="bg-white rounded-[16px] border border-[#E5E7EB] px-4 py-3 mb-5">
+          <p className="text-xs text-[#6B7280] mb-2">📍 Where are you going today?</p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -125,12 +125,12 @@ export default function HomePage() {
               value={cityInput}
               onChange={(e) => setCityInput(e.target.value)}
               placeholder="e.g. Tel Aviv"
-              className="flex-1 px-3 py-2 rounded-[12px] border border-[#ECE6DF] text-sm text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A]"
+              className="flex-1 px-3 py-2 rounded-[12px] border border-[#E5E7EB] text-sm text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A]"
             />
             <button
               type="submit"
               disabled={!cityInput.trim()}
-              className="px-4 py-2 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white text-sm font-semibold disabled:opacity-40"
+              className="px-4 py-2 rounded-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white text-sm font-semibold disabled:opacity-40"
             >
               Go
             </button>
@@ -139,28 +139,28 @@ export default function HomePage() {
       ) : (
         <>
           {weatherLoading && (
-            <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 animate-pulse">
-              <div className="w-8 h-8 bg-[#ECE6DF] rounded-full shrink-0" />
+            <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#E5E7EB] px-4 py-3 mb-5 animate-pulse">
+              <div className="w-8 h-8 bg-[#E5E7EB] rounded-full shrink-0" />
               <div className="flex-1 space-y-1.5">
-                <div className="h-3.5 w-24 bg-[#ECE6DF] rounded" />
-                <div className="h-3 w-36 bg-[#ECE6DF] rounded" />
+                <div className="h-3.5 w-24 bg-[#E5E7EB] rounded" />
+                <div className="h-3 w-36 bg-[#E5E7EB] rounded" />
               </div>
             </div>
           )}
           {weather && (
-            <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#ECE6DF] px-4 py-3 mb-5 shadow-[0_1px_8px_rgba(43,38,34,0.05)]">
+            <div className="flex items-center gap-3 bg-white rounded-[16px] border border-[#E5E7EB] px-4 py-3 mb-5 shadow-[0_1px_8px_rgba(17,17,17,0.05)]">
               <span className="text-2xl shrink-0">{weatherEmoji(weather.condition)}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-[#2B2622]">
+                <p className="text-sm font-semibold text-[#111111]">
                   {city} · {weather.temp_c}°C &middot; <span className="capitalize">{weather.description}</span>
                 </p>
-                <p className="text-xs text-[#8A817A]">
+                <p className="text-xs text-[#6B7280]">
                   Feels like {weather.feels_like_c}°C · {weather.humidity}% humidity
                 </p>
               </div>
               <button
                 onClick={() => { clearCity(); setCityInput(""); }}
-                className="text-xs text-[#C97B5A] font-semibold shrink-0 ml-2"
+                className="text-xs text-[#1B2A4A] font-semibold shrink-0 ml-2"
               >
                 Change
               </button>
@@ -173,7 +173,7 @@ export default function HomePage() {
       <div className="mt-auto pt-4">
         <button
           onClick={() => router.push("/chat/new")}
-          className="w-full py-4 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white font-semibold text-base active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(201,123,90,0.4)] hover:shadow-[0_6px_24px_rgba(201,123,90,0.5)]"
+          className="w-full py-4 rounded-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white font-semibold text-base active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(27,42,74,0.4)] hover:shadow-[0_6px_24px_rgba(27,42,74,0.5)]"
         >
           Chat with your AI Stylist ✨
         </button>

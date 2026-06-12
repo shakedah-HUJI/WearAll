@@ -29,37 +29,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FBF7F2] px-6 pt-20 pb-10">
+    <div className="flex flex-col min-h-screen bg-[#F9FAFB] px-6 pt-20 pb-10">
       <div className="mb-10">
-        <h1 className="font-serif text-[2.1rem] italic leading-tight text-[#2B2622]">
+        <h1 className="font-sans font-bold text-[2.1rem] leading-tight text-[#111111]">
           Welcome back
         </h1>
-        <p className="text-[#8A817A] mt-1">Sign in to your closet</p>
+        <p className="text-[#6B7280] mt-1">Sign in to your closet</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-[#2B2622]">Email</label>
+          <label className="text-sm font-medium text-[#111111]">Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="w-full px-4 py-3 rounded-[14px] border border-[#ECE6DF] bg-white text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent"
             placeholder="you@example.com"
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-[#2B2622]">Password</label>
+          <label className="text-sm font-medium text-[#111111]">Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="w-full px-4 py-3 rounded-[14px] border border-[#ECE6DF] bg-white text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent"
             placeholder="••••••••"
           />
         </div>
@@ -73,15 +73,15 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 w-full py-3.5 rounded-full bg-gradient-to-br from-[#C97B5A] to-[#D4856A] text-white font-semibold text-base disabled:opacity-60 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(201,123,90,0.38)]"
+          className="mt-2 w-full py-3.5 rounded-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white font-semibold text-base disabled:opacity-60 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(27,42,74,0.38)]"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
 
-      <p className="mt-8 text-center text-sm text-[#8A817A]">
+      <p className="mt-8 text-center text-sm text-[#6B7280]">
         New here?{" "}
-        <Link href="/signup" className="text-[#C97B5A] font-medium">
+        <Link href="/signup" className="text-[#1B2A4A] font-medium">
           Create an account
         </Link>
       </p>

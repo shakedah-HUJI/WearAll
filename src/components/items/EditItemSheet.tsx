@@ -73,23 +73,23 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="relative w-full max-w-[390px] bg-[#FBF7F2] rounded-t-[28px] max-h-[90vh] overflow-y-auto pb-8">
+      <div className="relative w-full max-w-[390px] bg-[#F9FAFB] rounded-t-[28px] max-h-[90vh] overflow-y-auto pb-8">
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 rounded-full bg-[#ECE6DF]" />
+          <div className="w-10 h-1 rounded-full bg-[#E5E7EB]" />
         </div>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pb-4">
-          <h2 className="text-lg font-semibold text-[#2B2622]">Edit item</h2>
-          <button onClick={onClose} className="p-1 text-[#8A817A]">
+          <h2 className="text-lg font-semibold text-[#111111]">Edit item</h2>
+          <button onClick={onClose} className="p-1 text-[#6B7280]">
             <X size={20} />
           </button>
         </div>
 
         {/* Photo */}
         {item.signed_url && (
-          <div className="mx-5 mb-5 aspect-square rounded-[20px] overflow-hidden bg-[#ECE6DF] relative">
+          <div className="mx-5 mb-5 aspect-square rounded-[20px] overflow-hidden bg-[#E5E7EB] relative">
             <Image src={item.signed_url} alt="clothing item" fill className="object-cover" sizes="350px" />
           </div>
         )}
@@ -97,7 +97,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
         <div className="px-5 flex flex-col gap-5">
           {/* Category */}
           <div>
-            <p className="text-sm font-semibold text-[#2B2622] mb-2">Category</p>
+            <p className="text-sm font-semibold text-[#111111] mb-2">Category</p>
             <div className="grid grid-cols-4 gap-2">
               {CATEGORIES.map((c) => (
                 <button
@@ -105,8 +105,8 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
                   onClick={() => setCategory(c.value)}
                   className={`flex flex-col items-center gap-1 py-2 px-1 rounded-[14px] border text-xs font-medium transition-all ${
                     category === c.value
-                      ? "bg-[#C97B5A] text-white border-[#C97B5A]"
-                      : "bg-white text-[#2B2622] border-[#ECE6DF]"
+                      ? "bg-[#1B2A4A] text-white border-[#1B2A4A]"
+                      : "bg-white text-[#111111] border-[#E5E7EB]"
                   }`}
                 >
                   <span className="text-lg">{c.emoji}</span>
@@ -118,29 +118,29 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
 
           {/* Subcategory */}
           <div>
-            <p className="text-sm font-semibold text-[#2B2622] mb-2">Type <span className="font-normal text-[#8A817A]">(optional)</span></p>
+            <p className="text-sm font-semibold text-[#111111] mb-2">Type <span className="font-normal text-[#6B7280]">(optional)</span></p>
             <input
               value={subcategory}
               onChange={(e) => setSubcategory(e.target.value)}
               placeholder="e.g. blazer, jeans, sneakers"
-              className="w-full px-4 py-3 rounded-[14px] border border-[#ECE6DF] bg-white text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] text-sm"
+              className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] text-sm"
             />
           </div>
 
           {/* Color */}
           <div>
-            <p className="text-sm font-semibold text-[#2B2622] mb-2">Main color <span className="font-normal text-[#8A817A]">(optional)</span></p>
+            <p className="text-sm font-semibold text-[#111111] mb-2">Main color <span className="font-normal text-[#6B7280]">(optional)</span></p>
             <input
               value={color}
               onChange={(e) => setColor(e.target.value)}
               placeholder="e.g. navy blue, cream, black"
-              className="w-full px-4 py-3 rounded-[14px] border border-[#ECE6DF] bg-white text-[#2B2622] placeholder-[#8A817A] focus:outline-none focus:ring-2 focus:ring-[#C97B5A] text-sm"
+              className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] text-sm"
             />
           </div>
 
           {/* Formality */}
           <div>
-            <p className="text-sm font-semibold text-[#2B2622] mb-2">Style</p>
+            <p className="text-sm font-semibold text-[#111111] mb-2">Style</p>
             <div className="flex flex-wrap gap-2">
               {FORMALITIES.map((f) => (
                 <button
@@ -148,8 +148,8 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
                   onClick={() => setFormality(f.value)}
                   className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-all ${
                     formality === f.value
-                      ? "bg-[#C97B5A] text-white border-[#C97B5A]"
-                      : "bg-white text-[#2B2622] border-[#ECE6DF]"
+                      ? "bg-[#1B2A4A] text-white border-[#1B2A4A]"
+                      : "bg-white text-[#111111] border-[#E5E7EB]"
                   }`}
                 >
                   {f.label}
@@ -160,7 +160,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
 
           {/* Warmth */}
           <div>
-            <p className="text-sm font-semibold text-[#2B2622] mb-2">Warmth</p>
+            <p className="text-sm font-semibold text-[#111111] mb-2">Warmth</p>
             <div className="flex gap-2">
               {WARMTHS.map((w) => (
                 <button
@@ -168,8 +168,8 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
                   onClick={() => setWarmth(w.value)}
                   className={`flex-1 py-2 rounded-full text-sm font-medium border transition-all ${
                     warmth === w.value
-                      ? "bg-[#C97B5A] text-white border-[#C97B5A]"
-                      : "bg-white text-[#2B2622] border-[#ECE6DF]"
+                      ? "bg-[#1B2A4A] text-white border-[#1B2A4A]"
+                      : "bg-white text-[#111111] border-[#E5E7EB]"
                   }`}
                 >
                   {w.label}

@@ -29,7 +29,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#C97B5A",
+  themeColor: "#1B2A4A",
 };
 
 export default function RootLayout({
@@ -39,9 +39,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${dmSans.variable} ${playfair.variable} h-full antialiased`}>
-      <body className="h-full bg-[#FBF7F2] flex justify-center">
+      <body className="h-full bg-[#F9FAFB] flex justify-center">
         {/* Mobile shell: constrained to 390px on desktop, full-screen on mobile */}
-        <div className="w-full max-w-[390px] min-h-full bg-[#FBF7F2] relative flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.08)]">
+        <div className="w-full max-w-[390px] min-h-full bg-[#F9FAFB] relative flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.08)]">
           {children}
         </div>
       </body>

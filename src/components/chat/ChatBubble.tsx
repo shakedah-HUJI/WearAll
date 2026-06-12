@@ -29,8 +29,8 @@ export default function ChatBubble({
           className={cn(
             "max-w-[80%] px-4 py-3 rounded-[18px] text-sm leading-relaxed",
             isUser
-              ? "bg-[#C97B5A] text-white rounded-br-[6px]"
-              : "bg-[#FFFDFB] text-[#2B2622] border border-[#ECE6DF] rounded-bl-[6px]"
+              ? "bg-[#1B2A4A] text-white rounded-br-[6px]"
+              : "bg-[#FFFFFF] text-[#111111] border border-[#E5E7EB] rounded-bl-[6px]"
           )}
         >
           {content.text}
@@ -39,7 +39,7 @@ export default function ChatBubble({
 
       {content.type === "clarify" && content.questions && (
         <>
-          <div className="max-w-[80%] px-4 py-3 rounded-[18px] rounded-bl-[6px] bg-[#FFFDFB] text-[#2B2622] border border-[#ECE6DF] text-sm leading-relaxed">
+          <div className="max-w-[80%] px-4 py-3 rounded-[18px] rounded-bl-[6px] bg-[#FFFFFF] text-[#111111] border border-[#E5E7EB] text-sm leading-relaxed">
             {content.questions[0]}
           </div>
           {content.questions.length > 1 && (

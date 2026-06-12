@@ -11,7 +11,7 @@ export default function WearAllLogo({ className }: WearAllLogoProps) {
         height="28"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#C97B5A"
+        stroke="#1B2A4A"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -23,7 +23,7 @@ export default function WearAllLogo({ className }: WearAllLogoProps) {
       </svg>
       {/* Wordmark */}
       <span
-        className="font-serif italic text-[1.6rem] leading-none tracking-tight text-[#2B2622]"
+        className="font-serif italic text-[1.6rem] leading-none tracking-tight text-[#111111]"
         style={{ letterSpacing: "-0.01em" }}
       >
         WearAll

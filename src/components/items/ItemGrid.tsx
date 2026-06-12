@@ -14,7 +14,7 @@ export default function ItemGrid({ items, isLoading = false, onDelete }: ItemGri
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="aspect-square rounded-[20px] bg-[#ECE6DF] animate-pulse"
+            className="aspect-square rounded-[20px] bg-[#E5E7EB] animate-pulse"
           />
         ))}
       </div>
@@ -25,8 +25,8 @@ export default function ItemGrid({ items, isLoading = false, onDelete }: ItemGri
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center px-8">
         <p className="text-4xl mb-4">👗</p>
-        <p className="text-[#2B2622] font-semibold text-lg">Your closet is empty</p>
-        <p className="text-[#8A817A] text-sm mt-1">
+        <p className="text-[#111111] font-semibold text-lg">Your closet is empty</p>
+        <p className="text-[#6B7280] text-sm mt-1">
           Add your first item to get started
         </p>
       </div>

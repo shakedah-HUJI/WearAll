@@ -34,11 +34,11 @@ export default function UploadProgress({ files }: UploadProgressProps) {
         >
           <StatusIcon status={file.status} />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#2B2622] truncate">{file.name}</p>
+            <p className="text-sm font-medium text-[#111111] truncate">{file.name}</p>
             <p
               className={cn(
                 "text-xs",
-                file.status === "error" ? "text-red-500" : "text-[#8A817A]"
+                file.status === "error" ? "text-red-500" : "text-[#6B7280]"
               )}
             >
               {file.status === "error"
@@ -47,7 +47,7 @@ export default function UploadProgress({ files }: UploadProgressProps) {
             </p>
           </div>
           {file.status === "done" && file.category && (
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#FBF7F2] text-[#8A817A] capitalize shrink-0">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#F9FAFB] text-[#6B7280] capitalize shrink-0">
               {file.category}
             </span>
           )}
@@ -60,5 +60,5 @@ export default function UploadProgress({ files }: UploadProgressProps) {
 function StatusIcon({ status }: { status: UploadStatus }) {
   if (status === "done") return <CheckCircle2 size={18} className="text-[#A7B0A0] shrink-0" />;
   if (status === "error") return <XCircle size={18} className="text-red-400 shrink-0" />;
-  return <Loader2 size={18} className="text-[#C97B5A] animate-spin shrink-0" />;
+  return <Loader2 size={18} className="text-[#1B2A4A] animate-spin shrink-0" />;
 }

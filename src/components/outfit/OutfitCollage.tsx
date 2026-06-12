@@ -11,7 +11,7 @@ export default function OutfitCollage({ items }: OutfitCollageProps) {
       {items.map((item, i) => (
         <div
           key={item.id}
-          className={`rounded-[16px] overflow-hidden bg-[#ECE6DF] relative ${
+          className={`rounded-[16px] overflow-hidden bg-[#E5E7EB] relative ${
             i === 0 && items.length % 2 !== 0 ? "col-span-2 aspect-[2/1]" : "aspect-square"
           }`}
         >
@@ -25,7 +25,7 @@ export default function OutfitCollage({ items }: OutfitCollageProps) {
             />
           )}
           <div className="absolute bottom-2 left-2">
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/80 text-[#2B2622] capitalize">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/80 text-[#111111] capitalize">
               {item.subcategory ?? item.category}
             </span>
           </div>

@@ -28,14 +28,14 @@ export default function OutfitDetail({ outfit, items, onWear }: OutfitDetailProp
       <OutfitCollage items={items} />
 
       <div className="px-5 pt-2 pb-4">
-        <p className="text-[#2B2622] leading-relaxed">{outfit.rationale}</p>
+        <p className="text-[#111111] leading-relaxed">{outfit.rationale}</p>
       </div>
 
       <div className="px-5 flex flex-wrap gap-2 pb-4">
         {items.map((item) => (
           <span
             key={item.id}
-            className="text-xs px-3 py-1 rounded-full bg-[#ECE6DF] text-[#8A817A] capitalize font-medium"
+            className="text-xs px-3 py-1 rounded-full bg-[#E5E7EB] text-[#6B7280] capitalize font-medium"
           >
             {item.subcategory ?? item.category}
             {item.formality && ` · ${item.formality}`}

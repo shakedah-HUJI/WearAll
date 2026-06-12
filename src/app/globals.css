@@ -2,14 +2,14 @@
 
 @theme inline {
   /* Design palette */
-  --color-background:      #FBF7F2;
-  --color-surface:         #FFFDFB;
-  --color-primary-text:    #2B2622;
-  --color-secondary-text:  #8A817A;
-  --color-accent:          #C97B5A;
+  --color-background:      #F9FAFB;
+  --color-surface:         #FFFFFF;
+  --color-primary-text:    #111111;
+  --color-secondary-text:  #6B7280;
+  --color-accent:          #1B2A4A;
   --color-accent-sage:     #A7B0A0;
-  --color-accent-rose:     #D8A8A0;
-  --color-border:          #ECE6DF;
+  --color-accent-rose:     #9FAFC7;
+  --color-border:          #E5E7EB;
 
   /* Typography */
   --font-sans:   var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
@@ -23,12 +23,12 @@
   --max-w-mobile: 390px;
 
   /* Gradients */
-  --gradient-warm:   linear-gradient(135deg, #C97B5A 0%, #D4856A 100%);
-  --gradient-hero:   linear-gradient(160deg, #FDF0E8 0%, #F7E4D4 100%);
+  --gradient-warm:   linear-gradient(135deg, #1B2A4A 0%, #253E6B 100%);
+  --gradient-hero:   linear-gradient(160deg, #F9FAFB 0%, #E5E7EB 100%);
 
   /* Elevated card shadow (replaces flat border on key cards) */
-  --shadow-card:     0 2px 16px rgba(43, 38, 34, 0.07), 0 0 0 1px #ECE6DF;
-  --shadow-button:   0 4px 20px rgba(201, 123, 90, 0.38);
+  --shadow-card:     0 2px 16px rgba(17, 17, 17, 0.07), 0 0 0 1px #E5E7EB;
+  --shadow-button:   0 4px 20px rgba(27, 42, 74, 0.38);
 }
 
 * {
@@ -38,8 +38,8 @@
 html,
 body {
   height: 100%;
-  background-color: #FBF7F2;
-  color: #2B2622;
+  background-color: #F9FAFB;
+  color: #111111;
 }
 
 /* Smooth scrolling everywhere */

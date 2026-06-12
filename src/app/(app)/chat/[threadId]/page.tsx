@@ -78,14 +78,14 @@ export default function ChatPage({ params }: PageProps) {
     );
     return (
       <div className="flex flex-col min-h-screen">
-        <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#ECE6DF]">
+        <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#E5E7EB]">
           <button
             onClick={() => setSelectedOutfit(null)}
             className="mr-3 p-1 -ml-1"
           >
-            <ArrowLeft size={22} className="text-[#2B2622]" />
+            <ArrowLeft size={22} className="text-[#111111]" />
           </button>
-          <h2 className="font-serif text-xl italic text-[#2B2622]">The look</h2>
+          <h2 className="font-sans font-semibold text-xl text-[#111111]">The look</h2>
         </div>
         <div className="flex-1 overflow-y-auto">
           <OutfitDetail
@@ -101,15 +101,15 @@ export default function ChatPage({ params }: PageProps) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#ECE6DF] shrink-0">
+      <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#E5E7EB] shrink-0">
         <button
           onClick={() => router.push("/home")}
           className="mr-3 p-1 -ml-1"
         >
-          <ArrowLeft size={22} className="text-[#2B2622]" />
+          <ArrowLeft size={22} className="text-[#111111]" />
         </button>
-        <h2 className="font-serif text-xl italic text-[#2B2622]">Mia</h2>
-        <span className="ml-2 text-xs text-[#A7B0A0] bg-[#ECE6DF] px-2 py-0.5 rounded-full">
+        <h2 className="font-sans font-semibold text-xl text-[#111111]">Mia</h2>
+        <span className="ml-2 text-xs text-[#A7B0A0] bg-[#E5E7EB] px-2 py-0.5 rounded-full">
           Your stylist
         </span>
       </div>
@@ -119,8 +119,8 @@ export default function ChatPage({ params }: PageProps) {
         {messages.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full text-center py-12 gap-3">
             <p className="text-4xl">👗</p>
-            <p className="text-[#2B2622] font-semibold">What's the plan today?</p>
-            <p className="text-[#8A817A] text-sm max-w-[220px]">
+            <p className="text-[#111111] font-semibold">What's the plan today?</p>
+            <p className="text-[#6B7280] text-sm max-w-[220px]">
               Tell me your schedule and I'll put together some looks from your closet.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function ChatPage({ params }: PageProps) {
         ))}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-sm text-[#8A817A]">
+          <div className="flex items-center gap-2 text-sm text-[#6B7280]">
             <Spinner size="sm" />
             <span>Mia is thinking…</span>
           </div>
