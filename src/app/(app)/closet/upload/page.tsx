@@ -10,7 +10,7 @@ import UploadProgress, {
 } from "@/components/items/UploadProgress";
 import Button from "@/components/ui/Button";
 
-// Resize + compress to JPEG — keeps uploads fast and small
+// Resize + compress to JPEG with white background (handles transparent PNGs)
 async function compressImage(file: File, maxDim = 1200, quality = 0.88): Promise<File> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
@@ -25,6 +25,9 @@ async function compressImage(file: File, maxDim = 1200, quality = 0.88): Promise
       canvas.height = h;
       const ctx = canvas.getContext("2d");
       if (!ctx) { resolve(file); return; }
+      // Fill white so transparent areas (BG-removed PNGs) become white, not black
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(0, 0, w, h);
       ctx.drawImage(img, 0, 0, w, h);
       canvas.toBlob(
         (blob) => {
@@ -55,17 +58,45 @@ export default function UploadPage() {
     const newFiles: UploadFile[] = accepted.map((f) => ({
       id: Math.random().toString(36).slice(2),
       name: f.name,
-      status: "uploading" as UploadStatus,
+      status: "processing" as UploadStatus,
     }));
 
     setFiles((prev) => [...prev, ...newFiles]);
     setUploading(true);
     setAllDone(false);
 
-    // Compress each photo before uploading
-    const processedFiles: File[] = [];
+    // Step 1: Remove background from each photo (client-side, free, no API key)
+    // Dynamic import so the ~30MB model is only loaded when needed
+    let removeBackground: ((img: File) => Promise<Blob>) | null = null;
+    try {
+      const mod = await import("@imgly/background-removal");
+      removeBackground = mod.removeBackground as (img: File) => Promise<Blob>;
+    } catch {
+      // Library failed to load — skip BG removal and upload originals
+    }
+
+    const bgRemovedFiles: File[] = [];
     for (let i = 0; i < accepted.length; i++) {
-      processedFiles.push(await compressImage(accepted[i]));
+      try {
+        if (removeBackground) {
+          const blob = await removeBackground(accepted[i]);
+          bgRemovedFiles.push(
+            new File([blob], accepted[i].name.replace(/\.[^.]+$/, ".png"), { type: "image/png" })
+          );
+        } else {
+          bgRemovedFiles.push(accepted[i]);
+        }
+      } catch {
+        // BG removal failed for this item — use original
+        bgRemovedFiles.push(accepted[i]);
+      }
+      updateStatus(newFiles[i].id, { status: "uploading" });
+    }
+
+    // Step 2: Compress (white-background JPEG)
+    const processedFiles: File[] = [];
+    for (let i = 0; i < bgRemovedFiles.length; i++) {
+      processedFiles.push(await compressImage(bgRemovedFiles[i]));
     }
 
     // Map processed filename → UploadFile id for result matching
@@ -155,7 +186,7 @@ export default function UploadPage() {
         <div className="mt-6">
           {uploading && (
             <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide mb-3">
-              Uploading…
+              Processing…
             </p>
           )}
           {!uploading && allDone && (
