@@ -17,7 +17,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-[#FFFFFF]/90 backdrop-blur-xl border-t border-[#E5E7EB]/60 z-40 shadow-[0_-4px_20px_rgba(17,17,17,0.06)]">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] bg-white border-t border-[#E5E5E5] z-40">
       <div className="flex items-center justify-around px-2 pb-safe">
         {tabs.map(({ href, label, icon: Icon, custom }) => {
           const active =
@@ -30,22 +30,19 @@ export default function BottomNav() {
               href={href}
               className={cn(
                 "flex flex-col items-center py-3 px-5 transition-colors",
-                active ? "text-[#1B2A4A]" : "text-[#6B7280]"
+                active ? "text-[#111111]" : "text-[#AAAAAA]"
               )}
             >
               {custom
-                ? <HangerIcon size={22} strokeWidth={active ? 2.2 : 1.8} />
-                : Icon && <Icon size={22} strokeWidth={active ? 2.2 : 1.8} />
+                ? <HangerIcon size={22} strokeWidth={active ? 2 : 1.5} />
+                : Icon && <Icon size={22} strokeWidth={active ? 2 : 1.5} />
               }
-              <span className={cn("text-[10px] font-medium mt-0.5", active && "font-semibold")}>
+              <span className={cn(
+                "text-[10px] mt-0.5 uppercase tracking-widest",
+                active ? "font-bold" : "font-medium"
+              )}>
                 {label}
               </span>
-              <span
-                className={cn(
-                  "mt-1 h-0.5 rounded-full transition-all duration-200",
-                  active ? "w-4 bg-[#1B2A4A]" : "w-0 bg-transparent"
-                )}
-              />
             </Link>
           );
         })}

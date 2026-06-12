@@ -54,7 +54,7 @@ export default function OutfitCard({ outfit, items, onWear, onViewOutfit }: Outf
         </button>
         <button
           onClick={onWear}
-          className="flex-1 py-2 rounded-full bg-[#1B2A4A] text-sm font-medium text-white active:opacity-80 transition-opacity"
+          className="flex-1 py-2 rounded-full bg-[#111111] text-sm font-medium text-white active:opacity-80 transition-opacity"
         >
           Wear this
         </button>

@@ -44,7 +44,7 @@ export default function HomePage() {
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="flex flex-col min-h-screen px-5 pt-14 pb-28">
+    <div className="flex flex-col min-h-screen px-5 pt-14 pb-28 bg-[#F5F5F5]">
 
       {/* Logo */}
       <WearAllLogo className="mb-7" />
@@ -173,9 +173,9 @@ export default function HomePage() {
       <div className="mt-auto pt-4">
         <button
           onClick={() => router.push("/chat/new")}
-          className="w-full py-4 rounded-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white font-semibold text-base active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(27,42,74,0.4)] hover:shadow-[0_6px_24px_rgba(27,42,74,0.5)]"
+          className="w-full py-4 bg-[#111111] text-white text-xs font-black tracking-[0.2em] uppercase active:scale-[0.99] transition-all"
         >
-          Chat with your AI Stylist ✨
+          Chat with your AI Stylist →
         </button>
       </div>
     </div>

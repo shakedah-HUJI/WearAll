@@ -19,14 +19,14 @@ export default function Button({
     <button
       disabled={disabled || loading}
       className={cn(
-        "rounded-full font-semibold transition-all active:scale-[0.97] disabled:opacity-50",
+        "font-semibold transition-all active:scale-[0.98] disabled:opacity-50 tracking-wide",
         {
-          "bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white shadow-[0_4px_20px_rgba(27,42,74,0.38)] hover:shadow-[0_6px_24px_rgba(27,42,74,0.48)]": variant === "primary",
-          "border border-[#1B2A4A] text-[#1B2A4A] bg-transparent": variant === "secondary",
+          "bg-[#111111] text-white": variant === "primary",
+          "border border-[#111111] text-[#111111] bg-transparent": variant === "secondary",
           "text-[#6B7280] bg-transparent": variant === "ghost",
-          "px-4 py-2 text-sm": size === "sm",
-          "px-5 py-3 text-base": size === "md",
-          "px-6 py-3.5 text-base w-full": size === "lg",
+          "px-4 py-2 text-xs": size === "sm",
+          "px-5 py-3 text-sm": size === "md",
+          "px-6 py-4 text-sm w-full uppercase tracking-widest": size === "lg",
         },
         className
       )}

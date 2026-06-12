@@ -135,12 +135,12 @@ export default function UploadPage() {
         <div
           {...getRootProps()}
           className={`flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-[24px] p-10 cursor-pointer transition-colors ${
-            isDragActive ? "border-[#1B2A4A] bg-[#1B2A4A]/5" : "border-[#E5E7EB] bg-white"
+            isDragActive ? "border-[#111111] bg-[#111111]/5" : "border-[#E5E7EB] bg-white"
           }`}
         >
           <input {...getInputProps()} />
           <div className="w-14 h-14 rounded-full bg-[#F9FAFB] flex items-center justify-center">
-            <ImagePlus size={26} className="text-[#1B2A4A]" />
+            <ImagePlus size={26} className="text-[#111111]" />
           </div>
           <div className="text-center">
             <p className="font-medium text-[#111111]">

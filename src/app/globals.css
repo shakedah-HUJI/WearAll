@@ -6,7 +6,7 @@
   --color-surface:         #FFFFFF;
   --color-primary-text:    #111111;
   --color-secondary-text:  #6B7280;
-  --color-accent:          #1B2A4A;
+  --color-accent:          #111111;
   --color-accent-sage:     #A7B0A0;
   --color-accent-rose:     #9FAFC7;
   --color-border:          #E5E7EB;
@@ -23,12 +23,12 @@
   --max-w-mobile: 390px;
 
   /* Gradients */
-  --gradient-warm:   linear-gradient(135deg, #1B2A4A 0%, #253E6B 100%);
+  --gradient-warm:   linear-gradient(135deg, #111111 0%, #333333 100%);
   --gradient-hero:   linear-gradient(160deg, #F9FAFB 0%, #E5E7EB 100%);
 
   /* Elevated card shadow (replaces flat border on key cards) */
   --shadow-card:     0 2px 16px rgba(17, 17, 17, 0.07), 0 0 0 1px #E5E7EB;
-  --shadow-button:   0 4px 20px rgba(27, 42, 74, 0.38);
+  --shadow-button:   0 4px 20px rgba(17, 17, 17, 0.38);
 }
 
 * {

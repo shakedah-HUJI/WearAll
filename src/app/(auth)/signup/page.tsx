@@ -62,7 +62,7 @@ export default function SignupPage() {
             onChange={(e) => setName(e.target.value)}
             required
             autoComplete="name"
-            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#111111] focus:border-transparent"
             placeholder="Sofia"
           />
         </div>
@@ -75,7 +75,7 @@ export default function SignupPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#111111] focus:border-transparent"
             placeholder="you@example.com"
           />
         </div>
@@ -89,7 +89,7 @@ export default function SignupPage() {
             required
             minLength={6}
             autoComplete="new-password"
-            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#1B2A4A] focus:border-transparent"
+            className="w-full px-4 py-3 rounded-[14px] border border-[#E5E7EB] bg-white text-[#111111] placeholder-[#6B7280] focus:outline-none focus:ring-2 focus:ring-[#111111] focus:border-transparent"
             placeholder="At least 6 characters"
           />
         </div>
@@ -103,7 +103,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 w-full py-3.5 rounded-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] text-white font-semibold text-base disabled:opacity-60 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(27,42,74,0.38)]"
+          className="mt-2 w-full py-3.5 rounded-full bg-gradient-to-br from-[#111111] to-[#333333] text-white font-semibold text-base disabled:opacity-60 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(17,17,17,0.38)]"
         >
           {loading ? "Creating account…" : "Get started"}
         </button>
@@ -111,7 +111,7 @@ export default function SignupPage() {
 
       <p className="mt-8 text-center text-sm text-[#6B7280]">
         Already have an account?{" "}
-        <Link href="/login" className="text-[#1B2A4A] font-medium">
+        <Link href="/login" className="text-[#111111] font-medium">
           Sign in
         </Link>
       </p>

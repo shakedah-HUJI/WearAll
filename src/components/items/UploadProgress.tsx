@@ -60,5 +60,5 @@ export default function UploadProgress({ files }: UploadProgressProps) {
 function StatusIcon({ status }: { status: UploadStatus }) {
   if (status === "done") return <CheckCircle2 size={18} className="text-[#A7B0A0] shrink-0" />;
   if (status === "error") return <XCircle size={18} className="text-red-400 shrink-0" />;
-  return <Loader2 size={18} className="text-[#1B2A4A] animate-spin shrink-0" />;
+  return <Loader2 size={18} className="text-[#111111] animate-spin shrink-0" />;
 }

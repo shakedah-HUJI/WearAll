@@ -109,12 +109,12 @@ export default function ProfilePage() {
         <div className="relative mb-4">
           <button
             onClick={() => fileRef.current?.click()}
-            className="relative w-24 h-24 rounded-full overflow-hidden shadow-[0_4px_16px_rgba(27,42,74,0.25)] focus:outline-none"
+            className="relative w-24 h-24 rounded-full overflow-hidden shadow-[0_4px_16px_rgba(17,17,17,0.25)] focus:outline-none"
           >
             {avatarUrl ? (
               <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#111111] to-[#333333] flex items-center justify-center">
                 <span className="text-white font-semibold text-3xl leading-none">
                   {displayName ? displayName[0].toUpperCase() : "?"}
                 </span>
@@ -123,7 +123,7 @@ export default function ProfilePage() {
           </button>
           <button
             onClick={() => fileRef.current?.click()}
-            className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#1B2A4A] flex items-center justify-center border-2 border-white shadow"
+            className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center border-2 border-white shadow"
           >
             {uploading
               ? <span className="text-white text-[9px] font-bold">…</span>
@@ -140,16 +140,16 @@ export default function ProfilePage() {
               onChange={e => setNameInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && saveName()}
               autoFocus
-              className="flex-1 text-center px-3 py-1.5 rounded-[10px] border border-[#E5E7EB] text-[#111111] text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2A4A]"
+              className="flex-1 text-center px-3 py-1.5 rounded-[10px] border border-[#E5E7EB] text-[#111111] text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
             />
-            <button onClick={saveName} className="px-3 py-1.5 rounded-full bg-[#1B2A4A] text-white text-sm font-semibold">
+            <button onClick={saveName} className="px-3 py-1.5 rounded-full bg-[#111111] text-white text-sm font-semibold">
               Save
             </button>
           </div>
         ) : (
           <button onClick={() => setEditingName(true)} className="text-center">
             <p className="font-sans font-semibold text-xl text-[#111111]">{displayName || "Add your name"}</p>
-            <p className="text-[11px] text-[#1B2A4A] mt-0.5 font-medium">Tap to edit</p>
+            <p className="text-[11px] text-[#111111] mt-0.5 font-medium">Tap to edit</p>
           </button>
         )}
       </div>
@@ -171,11 +171,11 @@ export default function ProfilePage() {
             <div className="bg-[#F9FAFB] rounded-2xl p-4 mb-3 border border-[#E5E7EB]">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-semibold text-[#111111]">Utilization</p>
-                <span className="text-xl font-bold text-[#1B2A4A]">{utilization}%</span>
+                <span className="text-xl font-bold text-[#111111]">{utilization}%</span>
               </div>
               <div className="h-2 bg-[#E5E7EB] rounded-full overflow-hidden mb-2.5">
                 <div
-                  className="h-full bg-gradient-to-r from-[#1B2A4A] to-[#253E6B] rounded-full transition-all duration-700"
+                  className="h-full bg-gradient-to-r from-[#111111] to-[#333333] rounded-full transition-all duration-700"
                   style={{ width: `${utilization}%` }}
                 />
               </div>
@@ -214,7 +214,7 @@ export default function ProfilePage() {
                   <p className="text-sm font-semibold text-[#111111] capitalize mt-0.5">
                     {mostWorn.subcategory ?? mostWorn.category}
                   </p>
-                  <p className="text-xs text-[#1B2A4A] font-medium">worn {mostWorn.wear_count}×</p>
+                  <p className="text-xs text-[#111111] font-medium">worn {mostWorn.wear_count}×</p>
                 </div>
               </div>
             )}
@@ -229,7 +229,7 @@ export default function ProfilePage() {
                       <p className="text-xs text-[#111111] font-medium w-20 shrink-0">{CATEGORY_LABELS[cat]}</p>
                       <div className="flex-1 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-[#1B2A4A] to-[#253E6B] rounded-full"
+                          className="h-full bg-gradient-to-r from-[#111111] to-[#333333] rounded-full"
                           style={{ width: `${Math.round((count / total) * 100)}%` }}
                         />
                       </div>

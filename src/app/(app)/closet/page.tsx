@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, SlidersHorizontal } from "lucide-react";
 import { useItems } from "@/hooks/useItems";
 import { ClothingItem, ItemCategory } from "@/types/item";
 import EditItemSheet from "@/components/items/EditItemSheet";
@@ -34,28 +34,28 @@ const FILTER_TABS: { label: string; value: ItemCategory | "all" }[] = [
 
 function ItemTile({ item, onTap }: { item: ClothingItem; onTap: () => void }) {
   return (
-    <button
-      onClick={onTap}
-      className="relative aspect-square bg-[#F9FAFB] overflow-hidden"
-    >
-      {item.signed_url ? (
-        <img
-          src={item.signed_url}
-          alt={item.subcategory ?? item.category}
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center text-[#D1D5DB] text-3xl">
-          👗
-        </div>
-      )}
-      {item.subcategory && (
-        <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-gradient-to-t from-black/25 to-transparent">
-          <span className="text-[9px] font-medium text-white capitalize tracking-wide">
-            {item.subcategory}
-          </span>
-        </div>
-      )}
+    <button onClick={onTap} className="flex flex-col bg-white text-left w-full">
+      <div className="aspect-square w-full bg-[#F5F5F5] overflow-hidden">
+        {item.signed_url ? (
+          <img
+            src={item.signed_url}
+            alt={item.subcategory ?? item.category}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[#CCCCCC] text-2xl">
+            —
+          </div>
+        )}
+      </div>
+      <div className="px-2 pt-2 pb-3">
+        <p className="text-xs font-semibold text-[#111111] capitalize truncate leading-tight">
+          {item.subcategory ?? item.category}
+        </p>
+        {item.primary_color && (
+          <p className="text-[10px] text-[#999999] mt-0.5 capitalize">{item.primary_color}</p>
+        )}
+      </div>
     </button>
   );
 }
@@ -74,17 +74,17 @@ export default function ClosetPage() {
       body: JSON.stringify(updates),
     });
     mutate();
-    toast("Item updated!", "success");
+    toast("Saved", "success");
   }
 
   async function handleDelete(id: string) {
     await deleteItem(id);
-    toast("Item removed", "success");
+    toast("Removed", "success");
   }
 
   const rarelyWorn = [...allItems]
     .sort((a, b) => (a.wear_count ?? 0) - (b.wear_count ?? 0))
-    .slice(0, 5);
+    .slice(0, 6);
 
   const grouped = CATEGORY_ORDER.reduce<Record<string, ClothingItem[]>>((acc, cat) => {
     const catItems = allItems.filter((i) => i.category === cat);
@@ -93,34 +93,38 @@ export default function ClosetPage() {
   }, {});
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-[#F5F5F5]">
 
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-14 pb-4">
+      <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-[#E5E5E5]">
         <div>
-          <h1 className="font-sans font-bold text-[1.85rem] leading-tight text-[#111111]">My Closet</h1>
-          <p className="text-xs text-[#6B7280] mt-0.5 tracking-wide">
-            {allItems.length} {allItems.length === 1 ? "piece" : "pieces"}
+          <h1 className="font-sans font-black text-base tracking-[0.15em] uppercase text-[#111111]">
+            My Closet
+          </h1>
+          <p className="text-[11px] text-[#999999] mt-0.5 tracking-wide">
+            {allItems.length} {allItems.length === 1 ? "item" : "items"}
           </p>
         </div>
-        <button
-          onClick={() => router.push("/closet/upload")}
-          className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] flex items-center justify-center text-white shadow-[0_4px_12px_rgba(27,42,74,0.35)]"
-        >
-          <Plus size={20} />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push("/closet/upload")}
+            className="w-9 h-9 bg-[#111111] flex items-center justify-center text-white"
+          >
+            <Plus size={18} strokeWidth={2.5} />
+          </button>
+        </div>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex overflow-x-auto scrollbar-hide border-y border-[#E5E7EB]">
+      <div className="flex overflow-x-auto scrollbar-hide bg-white border-b border-[#E5E5E5] px-4 gap-2 py-3">
         {FILTER_TABS.map(({ label, value }) => (
           <button
             key={value}
             onClick={() => setActiveFilter(value)}
-            className={`shrink-0 px-4 py-2.5 text-xs font-semibold tracking-widest uppercase transition-colors ${
+            className={`shrink-0 px-4 py-1.5 text-xs font-semibold tracking-wide border transition-none ${
               activeFilter === value
-                ? "text-[#111111] border-b-2 border-[#1B2A4A]"
-                : "text-[#6B7280] border-b-2 border-transparent"
+                ? "bg-[#111111] text-white border-[#111111]"
+                : "bg-white text-[#111111] border-[#DDDDDD]"
             }`}
           >
             {label}
@@ -130,64 +134,71 @@ export default function ClosetPage() {
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-3 gap-px bg-[#E5E7EB] mt-px">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="aspect-square bg-[#F9FAFB] animate-pulse" />
+        <div className="grid grid-cols-2 gap-px bg-[#E5E5E5] mt-px">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white">
+              <div className="aspect-square bg-[#F0F0F0] animate-pulse" />
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <div className="h-3 w-20 bg-[#F0F0F0] animate-pulse" />
+                <div className="h-2.5 w-12 bg-[#F0F0F0] animate-pulse" />
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {/* All view — grouped by category */}
+      {/* All view */}
       {!isLoading && activeFilter === "all" && (
         <div className="pb-28">
           {Object.keys(grouped).length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-28 text-center px-8">
-              <p className="text-4xl mb-4">👗</p>
-              <p className="text-[#111111] font-semibold">Your closet is empty</p>
-              <p className="text-[#6B7280] text-sm mt-1">Tap + to add your first item</p>
+            <div className="flex flex-col items-center justify-center py-32 text-center px-8">
+              <p className="text-sm font-semibold text-[#111111] tracking-wide uppercase">Your closet is empty</p>
+              <p className="text-xs text-[#999999] mt-2">Tap + to add your first item</p>
             </div>
           ) : (
             <>
-              {/* Rarely worn */}
+              {/* Rarely worn row */}
               {rarelyWorn.length > 0 && (
-                <div className="px-5 pt-5 pb-1">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280]">Rarely Worn</p>
-                    <p className="text-[11px] text-[#1B2A4A]">These deserve more love</p>
+                <div className="bg-white border-b border-[#E5E5E5] px-5 pt-4 pb-5">
+                  <div className="flex items-baseline gap-2 mb-3">
+                    <p className="text-xs font-black tracking-widest uppercase text-[#111111]">Rarely Worn</p>
+                    <p className="text-xs text-[#999999]">{rarelyWorn.length} items</p>
                   </div>
-                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+                  <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
                     {rarelyWorn.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => setEditingItem(item)}
-                        className="shrink-0 flex flex-col items-center gap-1"
+                        className="shrink-0 flex flex-col"
+                        style={{ width: 80 }}
                       >
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#F9FAFB]">
+                        <div className="w-20 h-20 bg-[#F5F5F5] overflow-hidden">
                           {item.signed_url ? (
-                            <img src={item.signed_url} alt={item.subcategory ?? item.category} className="w-full h-full object-cover" />
+                            <img src={item.signed_url} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[#D1D5DB] text-xl">👗</div>
+                            <div className="w-full h-full flex items-center justify-center text-[#CCCCCC]">—</div>
                           )}
                         </div>
-                        <p className="text-[10px] text-[#6B7280] capitalize truncate w-20 text-center mt-0.5">
+                        <p className="text-[10px] text-[#111111] capitalize truncate mt-1.5 font-medium">
                           {item.subcategory ?? item.category}
                         </p>
-                        <p className="text-[9px] text-[#1B2A4A] font-medium">worn {item.wear_count ?? 0}×</p>
+                        <p className="text-[9px] text-[#999999]">worn {item.wear_count ?? 0}×</p>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
+              {/* Category sections */}
               {Object.entries(grouped).map(([cat, catItems]) => (
                 <div key={cat}>
-                  <div className="flex items-center justify-between px-5 pt-6 pb-2">
-                    <p className="text-[11px] font-semibold tracking-widest uppercase text-[#6B7280]">
+                  <div className="flex items-baseline gap-2 px-5 pt-5 pb-2">
+                    <p className="text-xs font-black tracking-widest uppercase text-[#111111]">
                       {CATEGORY_LABELS[cat as ItemCategory]}
                     </p>
-                    <span className="text-[11px] text-[#1B2A4A] font-semibold">{catItems.length}</span>
+                    <p className="text-xs text-[#999999]">{catItems.length} items</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-px bg-[#E5E7EB]">
+                  <div className="grid grid-cols-2 gap-px bg-[#E5E5E5]">
                     {catItems.map((item) => (
                       <ItemTile key={item.id} item={item} onTap={() => setEditingItem(item)} />
                     ))}
@@ -203,28 +214,35 @@ export default function ClosetPage() {
       {!isLoading && activeFilter !== "all" && (
         <div className="pb-28">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-28 text-center px-8">
-              <p className="text-[#6B7280] text-sm">
+            <div className="flex flex-col items-center justify-center py-32 text-center px-8">
+              <p className="text-xs text-[#999999] uppercase tracking-widest">
                 No {CATEGORY_LABELS[activeFilter]} yet
               </p>
               <button
                 onClick={() => router.push("/closet/upload")}
-                className="mt-3 text-sm font-semibold text-[#1B2A4A]"
+                className="mt-4 px-6 py-2.5 bg-[#111111] text-white text-xs font-semibold tracking-widest uppercase"
               >
-                Add some →
+                Add Items
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-px bg-[#E5E7EB] mt-px">
-              {items.map((item) => (
-                <ItemTile key={item.id} item={item} onTap={() => setEditingItem(item)} />
-              ))}
-            </div>
+            <>
+              <div className="flex items-baseline gap-2 px-5 pt-5 pb-2">
+                <p className="text-xs font-black tracking-widest uppercase text-[#111111]">
+                  {CATEGORY_LABELS[activeFilter]}
+                </p>
+                <p className="text-xs text-[#999999]">{items.length} items</p>
+              </div>
+              <div className="grid grid-cols-2 gap-px bg-[#E5E5E5]">
+                {items.map((item) => (
+                  <ItemTile key={item.id} item={item} onTap={() => setEditingItem(item)} />
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}
 
-      {/* Edit sheet */}
       {editingItem && (
         <EditItemSheet
           item={editingItem}

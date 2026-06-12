@@ -9,7 +9,7 @@ export default function Spinner({ size = "md", className }: SpinnerProps) {
   return (
     <span
       className={cn(
-        "inline-block rounded-full border-2 border-[#1B2A4A] border-t-transparent animate-spin",
+        "inline-block rounded-full border-2 border-[#111111] border-t-transparent animate-spin",
         size === "sm" && "w-4 h-4",
         size === "md" && "w-6 h-6",
         size === "lg" && "w-8 h-8",
