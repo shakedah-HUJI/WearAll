@@ -99,6 +99,11 @@ export default function ItemCard({ item, onDelete, className }: ItemCardProps) {
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm text-[#111111] capitalize">
           {item.subcategory ?? item.category}
         </span>
+        {item.pattern && item.pattern !== "solid" && (
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm text-[#111111] capitalize">
+            {item.pattern}
+          </span>
+        )}
         {item.primary_color && (
           <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/80 backdrop-blur-sm text-[#111111] capitalize">
             <span

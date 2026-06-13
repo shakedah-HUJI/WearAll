@@ -10,7 +10,7 @@ Required fields and allowed values:
 - category: "top" | "bottom" | "dress" | "outerwear" | "shoes" | "accessory" | "other"
 - subcategory: string — be specific about fit and style (e.g. "skinny jeans", "wide-leg trousers", "oversized t-shirt", "fitted blazer", "crew-neck sweater", "midi dress", "ankle boots")
 - primary_color: string — be precise about shade (e.g. "dark navy", "light blue", "off-white", "burgundy", "forest green"). Never use "denim" as a color — describe the actual shade instead.
-- secondary_colors: string[] (other visible colors, empty array if none)
+- secondary_colors: string[] — for striped or patterned items ALWAYS list ALL stripe/pattern colors here (e.g. a black and white striped shirt must have ["black"] or ["white"] as secondary). Never leave empty for non-solid items.
 - pattern: "solid" | "striped" | "floral" | "plaid" | "print" | "other"
 - material_guess: string (e.g. "cotton", "silk", "denim", "wool blend")
 - formality: "casual" | "smart-casual" | "business" | "formal" | "sporty"
