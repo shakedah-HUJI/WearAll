@@ -54,12 +54,14 @@ export default function ChatPage({ params }: PageProps) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Update URL once thread is created
+  // Update URL once thread is created.
+  // Using history API directly instead of router.replace because router.replace
+  // triggers a Next.js navigation that resets component state and loses messages.
   useEffect(() => {
     if (threadId && isNew) {
-      router.replace(`/chat/${threadId}`, { scroll: false });
+      window.history.replaceState(null, "", `/chat/${threadId}`);
     }
-  }, [threadId, isNew, router]);
+  }, [threadId, isNew]);
 
   async function handleWear(itemIds: string[]) {
     await fetch("/api/wear", {
