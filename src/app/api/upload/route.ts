@@ -16,7 +16,7 @@ async function removeBackground(imageBuffer: Buffer): Promise<Buffer> {
     const params = new URLSearchParams({
       image_file_b64: imageBuffer.toString("base64"),
       size: "auto",
-      type: "clothing",
+      type: "auto",
       format: "jpg",
       bg_color: "FFFFFF",
     });
