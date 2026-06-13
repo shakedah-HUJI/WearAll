@@ -80,10 +80,11 @@ export async function POST(request: NextRequest) {
           upsert: false,
         }),
         cleanBuffer.byteLength <= 3 * 1024 * 1024
-          ? tagClothingItem(cleanBuffer.toString("base64"), "image/jpeg").catch(() => null)
+          ? tagClothingItem(cleanBuffer.toString("base64"), "image/jpeg").catch((err) => { console.error("tagger failed:", err); return null; })
           : Promise.resolve(null),
       ]);
 
+      console.log("tags:", JSON.stringify(tags));
       if (storageResult.error) throw new Error(storageResult.error.message);
 
       // Step 3 — insert DB record
