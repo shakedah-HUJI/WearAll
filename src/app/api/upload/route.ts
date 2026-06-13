@@ -74,6 +74,7 @@ function buildSearchQuery(tags: TagResult | null): string {
   if (!tags) return "";
   const parts: string[] = [];
   if (tags.primary_color && tags.primary_color !== "unknown") parts.push(tags.primary_color);
+  if (tags.secondary_colors?.length) parts.push(tags.secondary_colors[0]);
   if (tags.pattern && tags.pattern !== "solid") parts.push(tags.pattern);
   if (tags.subcategory) parts.push(tags.subcategory);
   parts.push("product photo white background");
