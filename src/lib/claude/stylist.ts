@@ -107,7 +107,8 @@ function currentSeason(): string {
 function inferFormality(occasion: string): ItemFormality {
   const lower = occasion.toLowerCase();
   if (/formal|gala|black.tie/i.test(lower)) return "formal";
-  if (/business|meeting|office|work|interview/i.test(lower)) return "business";
+  if (/business|meeting|office|interview/i.test(lower)) return "business";
+  if (/work/i.test(lower)) return "smart-casual"; // most workplaces are smart-casual
   if (/smart|dinner|restaurant|date/i.test(lower)) return "smart-casual";
   if (/sport|gym|workout|run/i.test(lower)) return "sporty";
   return "casual";
@@ -123,19 +124,38 @@ export function preFilterItems(
   const targetFormalityRank = FORMALITY_RANK[targetFormality];
   const tempC = weather?.temp_c ?? 20;
 
-  return items.filter((item) => {
+  const seasonFilter = (item: ClothingItem) => {
     if (item.season && item.season.length > 0 && !item.season.includes(season as never)) {
       return false;
     }
     if (tempC < 10 && item.warmth === "light" && item.category === "outerwear") {
       return false;
     }
+    return true;
+  };
+
+  const filtered = items.filter((item) => {
+    if (!seasonFilter(item)) return false;
     if (item.formality) {
       const rank = FORMALITY_RANK[item.formality];
       if (Math.abs(rank - targetFormalityRank) > 1) return false;
     }
     return true;
   });
+
+  // If formality filtering left the wardrobe too thin to build any outfit,
+  // fall back to returning all season-appropriate items so the AI always has
+  // something to work with (better to suggest a casual look for "work" than fail).
+  const canBuildOutfit =
+    filtered.some((i) => i.category === "top" || i.category === "dress") &&
+    (filtered.some((i) => i.category === "bottom") || filtered.some((i) => i.category === "dress")) &&
+    filtered.some((i) => i.category === "shoes");
+
+  if (!canBuildOutfit) {
+    return items.filter(seasonFilter);
+  }
+
+  return filtered;
 }
 
 function validateAndFixOutfit(
