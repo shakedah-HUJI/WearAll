@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { tagClothingItem } from "@/lib/claude/tagger";
+import { TagResult } from "@/types/item";
 import { randomUUID } from "crypto";
 
 const MAX_SIZE = 20 * 1024 * 1024;
 
-// Calls the remove.bg API (server-side) via base64 — more reliable than multipart in Node.js.
-// Falls back silently to the original buffer if the API key is missing or the call fails.
+// ── remove.bg ─────────────────────────────────────────────────────────────────
 async function removeBackground(imageBuffer: Buffer): Promise<Buffer> {
   const apiKey = process.env.REMOVEBG_API_KEY;
   if (!apiKey) {
-    console.log("remove.bg: no API key set, skipping");
+    console.log("remove.bg: no API key — skipping");
     return imageBuffer;
   }
-
   try {
     const params = new URLSearchParams({
       image_file_b64: imageBuffer.toString("base64"),
@@ -22,49 +21,93 @@ async function removeBackground(imageBuffer: Buffer): Promise<Buffer> {
       format: "jpg",
       bg_color: "FFFFFF",
     });
-
     const res = await fetch("https://api.remove.bg/v1.0/removebg", {
       method: "POST",
-      headers: {
-        "X-Api-Key": apiKey,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
+      headers: { "X-Api-Key": apiKey, "Content-Type": "application/x-www-form-urlencoded" },
       body: params.toString(),
     });
-
     if (!res.ok) {
-      const msg = await res.text().catch(() => String(res.status));
-      console.error(`remove.bg error ${res.status}:`, msg);
+      console.error(`remove.bg ${res.status}:`, await res.text().catch(() => ""));
       return imageBuffer;
     }
-
     const result = Buffer.from(await res.arrayBuffer());
-    console.log(`remove.bg: success, output ${result.byteLength} bytes`);
+    console.log(`remove.bg: ok (${result.byteLength} bytes)`);
     return result;
   } catch (err) {
-    console.error("remove.bg call failed:", err);
+    console.error("remove.bg failed:", err);
     return imageBuffer;
   }
 }
 
+// ── Catalog image search ──────────────────────────────────────────────────────
+
+// Build a precise search query from AI tagger results — no extra API call needed.
+function buildSearchQuery(tags: TagResult | null): string {
+  if (!tags) return "";
+  const parts: string[] = [];
+  if (tags.primary_color && tags.primary_color !== "unknown") parts.push(tags.primary_color);
+  if (tags.pattern && tags.pattern !== "solid") parts.push(tags.pattern);
+  if (tags.subcategory) parts.push(tags.subcategory);
+  parts.push("product photo white background");
+  return parts.join(" ");
+}
+
+// Google Custom Search API — 100 free queries/day.
+// Returns the best matching professional catalog image URL, or null on failure.
+async function searchCatalogImage(query: string): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
+  const cx = process.env.GOOGLE_SEARCH_CX;
+  if (!apiKey || !cx) {
+    console.log("catalog search: no API keys — skipping");
+    return null;
+  }
+  try {
+    const url = new URL("https://www.googleapis.com/customsearch/v1");
+    url.searchParams.set("key", apiKey);
+    url.searchParams.set("cx", cx);
+    url.searchParams.set("q", query);
+    url.searchParams.set("searchType", "image");
+    url.searchParams.set("imgType", "photo");
+    url.searchParams.set("imgSize", "large");
+    url.searchParams.set("safe", "active");
+    url.searchParams.set("num", "5");
+
+    const res = await fetch(url.toString());
+    if (!res.ok) {
+      console.error(`Google search ${res.status}:`, await res.text().catch(() => ""));
+      return null;
+    }
+
+    const json = await res.json();
+    const items: Array<{ link: string }> = json.items ?? [];
+    if (!items.length) {
+      console.log(`catalog search: no results for "${query}"`);
+      return null;
+    }
+
+    // Prefer a standard image format; skip GIFs, SVGs, tiny icons
+    const pick =
+      items.find((i) => /\.(jpe?g|png|webp)(\?|$)/i.test(i.link)) ?? items[0];
+
+    console.log(`catalog search: found "${pick.link}" for query "${query}"`);
+    return pick.link;
+  } catch (err) {
+    console.error("searchCatalogImage failed:", err);
+    return null;
+  }
+}
+
+// ── Upload handler ────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const formData = await request.formData();
   const files = formData.getAll("files") as File[];
+  if (!files.length) return NextResponse.json({ error: "No files provided" }, { status: 400 });
 
-  if (!files.length) {
-    return NextResponse.json({ error: "No files provided" }, { status: 400 });
-  }
-
-  // Client-detected colors as fallback when the AI tagger skips large files
+  // Client-detected colors — fallback when AI tagger is skipped for large files
   let colorHints: string[] = [];
   try {
     const raw = formData.get("colorHints");
@@ -85,33 +128,36 @@ export async function POST(request: NextRequest) {
     try {
       const rawBuffer = Buffer.from(await file.arrayBuffer());
 
-      // Remove background via dedicated AI API; falls back to original on any error
+      // Step 1 — AI background removal
       const cleanBuffer = await removeBackground(rawBuffer);
 
+      // Step 2 — storage upload + AI tagging run in parallel (saves 2-3 s per item)
       const storagePath = `${user.id}/${randomUUID()}.jpg`;
-
-      const { error: storageError } = await serviceClient.storage
-        .from("wardrobe")
-        .upload(storagePath, cleanBuffer, {
+      const [storageResult, tags] = await Promise.all([
+        serviceClient.storage.from("wardrobe").upload(storagePath, cleanBuffer, {
           contentType: "image/jpeg",
           upsert: false,
-        });
+        }),
+        cleanBuffer.byteLength <= 3 * 1024 * 1024
+          ? tagClothingItem(cleanBuffer.toString("base64"), "image/jpeg").catch(() => null)
+          : Promise.resolve(null),
+      ]);
 
-      if (storageError) throw new Error(storageError.message);
+      if (storageResult.error) throw new Error(storageResult.error.message);
 
-      // AI tag the clean image (non-fatal — falls back to defaults)
-      let tags = null;
-      if (cleanBuffer.byteLength <= 3 * 1024 * 1024) {
-        try {
-          tags = await tagClothingItem(cleanBuffer.toString("base64"), "image/jpeg");
-        } catch { /* tagging failed — use defaults */ }
-      }
+      // Step 3 — search for professional catalog image
+      const searchQuery = buildSearchQuery(tags);
+      const catalogUrl = searchQuery ? await searchCatalogImage(searchQuery) : null;
 
+      // Use the catalog URL if found; otherwise fall back to the Supabase-stored image
+      const imageUrl = catalogUrl ?? storagePath;
+
+      // Step 4 — insert DB record
       const { data: item, error: dbError } = await serviceClient
         .from("items")
         .insert({
           user_id: user.id,
-          image_url: storagePath,
+          image_url: imageUrl,
           category:         tags?.category         ?? "other",
           subcategory:      tags?.subcategory       ?? null,
           primary_color:    tags?.primary_color     ?? colorHints[fileIndex] ?? null,
