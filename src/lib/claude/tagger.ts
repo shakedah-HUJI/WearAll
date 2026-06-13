@@ -8,8 +8,8 @@ Return ONLY a valid JSON object — no markdown, no prose, nothing else.
 
 Required fields and allowed values:
 - category: "top" | "bottom" | "dress" | "outerwear" | "shoes" | "accessory" | "other"
-- subcategory: string (e.g. "t-shirt", "blazer", "jeans", "sneakers", "midi-dress")
-- primary_color: string (e.g. "navy blue", "cream", "forest green")
+- subcategory: string — be specific about fit and style (e.g. "skinny jeans", "wide-leg trousers", "oversized t-shirt", "fitted blazer", "crew-neck sweater", "midi dress", "ankle boots")
+- primary_color: string — be precise about shade (e.g. "dark navy", "light blue", "off-white", "burgundy", "forest green"). Never use "denim" as a color — describe the actual shade instead.
 - secondary_colors: string[] (other visible colors, empty array if none)
 - pattern: "solid" | "striped" | "floral" | "plaid" | "print" | "other"
 - material_guess: string (e.g. "cotton", "silk", "denim", "wool blend")
@@ -19,7 +19,7 @@ Required fields and allowed values:
 - notes: string (brief style note relevant for outfit pairing — max 20 words)
 
 Example output:
-{"category":"top","subcategory":"button-down shirt","primary_color":"light blue","secondary_colors":[],"pattern":"solid","material_guess":"cotton","formality":"smart-casual","season":["spring","summer","fall"],"warmth":"light","notes":"Crisp collar makes it versatile for both office and casual looks."}`;
+{"category":"bottom","subcategory":"skinny jeans","primary_color":"dark navy","secondary_colors":[],"pattern":"solid","material_guess":"denim","formality":"casual","season":["spring","summer","fall","winter"],"warmth":"medium","notes":"Sleek dark wash pairs well with both casual and smart-casual tops."}`;
 
 const VALID_CATEGORIES: ItemCategory[] = ["top","bottom","dress","outerwear","shoes","accessory","other"];
 const VALID_PATTERNS: ItemPattern[] = ["solid","striped","floral","plaid","print","other"];
