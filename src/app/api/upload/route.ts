@@ -39,6 +39,34 @@ async function removeBackground(imageBuffer: Buffer): Promise<Buffer> {
   }
 }
 
+// ── Catalog image download ────────────────────────────────────────────────────
+// Downloads an external image URL server-side so we can store it in Supabase
+// instead of linking to a third-party host that may rotate or expire the URL.
+async function downloadImage(url: string): Promise<Buffer | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; WearAll/1.0)" },
+      redirect: "follow",
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) {
+      console.error(`downloadImage: HTTP ${res.status} for ${url}`);
+      return null;
+    }
+    const ct = res.headers.get("content-type") ?? "";
+    if (!ct.startsWith("image/")) {
+      console.error(`downloadImage: unexpected content-type "${ct}" for ${url}`);
+      return null;
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    console.log(`downloadImage: downloaded ${buf.byteLength} bytes from ${url}`);
+    return buf;
+  } catch (err) {
+    console.error("downloadImage failed:", err);
+    return null;
+  }
+}
+
 // ── Catalog image search ──────────────────────────────────────────────────────
 
 // Build a precise search query from AI tagger results — no extra API call needed.
@@ -145,19 +173,35 @@ export async function POST(request: NextRequest) {
 
       if (storageResult.error) throw new Error(storageResult.error.message);
 
-      // Step 3 — search for professional catalog image
+      // Step 3 — search for professional catalog image and download it into Supabase
+      // (storing the raw external URL would break Next.js Image and rot when sites rotate URLs)
       const searchQuery = buildSearchQuery(tags);
       const catalogUrl = searchQuery ? await searchCatalogImage(searchQuery) : null;
 
-      // Use the catalog URL if found; otherwise fall back to the Supabase-stored image
-      const imageUrl = catalogUrl ?? storagePath;
+      let finalPath = storagePath;
+      if (catalogUrl) {
+        const catalogBuffer = await downloadImage(catalogUrl);
+        if (catalogBuffer) {
+          const catalogPath = `${user.id}/${randomUUID()}.jpg`;
+          const { error: catErr } = await serviceClient.storage
+            .from("wardrobe")
+            .upload(catalogPath, catalogBuffer, { contentType: "image/jpeg", upsert: false });
+          if (!catErr) {
+            finalPath = catalogPath;
+            // Remove the now-unused bg-removed original to keep storage clean
+            await serviceClient.storage.from("wardrobe").remove([storagePath]);
+          } else {
+            console.error("catalog upload to Supabase failed:", catErr.message);
+          }
+        }
+      }
 
       // Step 4 — insert DB record
       const { data: item, error: dbError } = await serviceClient
         .from("items")
         .insert({
           user_id: user.id,
-          image_url: imageUrl,
+          image_url: finalPath,
           category:         tags?.category         ?? "other",
           subcategory:      tags?.subcategory       ?? null,
           primary_color:    tags?.primary_color     ?? colorHints[fileIndex] ?? null,
