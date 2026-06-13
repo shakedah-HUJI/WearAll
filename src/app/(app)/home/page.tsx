@@ -128,13 +128,12 @@ export default function HomePage() {
             <p className="text-[10px] text-[#B0A898] font-semibold tracking-[0.2em] uppercase mb-2">
               {greeting}
             </p>
-            <h1 className="font-sans font-bold text-[2.6rem] leading-[1.08] text-[#111111] tracking-tight">
+            <h1 className="font-sans font-light text-[1.75rem] leading-[1.2] text-[#111111] tracking-tight">
               {displayName === null ? (
-                <span className="inline-block w-44 h-11 bg-[#E8E3DC] rounded-xl animate-pulse" />
+                <span className="inline-block w-44 h-8 bg-[#E8E3DC] rounded-xl animate-pulse" />
               ) : (
                 <>
-                  Hello,<br />
-                  <span style={{ color: "#1B2A4A" }}>{displayName || "there"}</span>
+                  Hello, <span className="font-semibold" style={{ color: "#1B2A4A" }}>{displayName || "there"}</span>
                 </>
               )}
             </h1>
@@ -170,7 +169,10 @@ export default function HomePage() {
             className="mb-6 rounded-[18px] px-4 py-3.5 flex items-center gap-3"
             style={glass}
           >
-            <span className="text-[#D4C4A8] text-sm shrink-0 select-none">📍</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C0B4A6" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+            </svg>
             <input
               value={cityInput}
               onChange={(e) => setCityInput(e.target.value)}
