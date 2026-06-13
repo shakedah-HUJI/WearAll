@@ -34,8 +34,8 @@ const FILTER_TABS: { label: string; value: ItemCategory | "all" }[] = [
 
 function ItemTile({ item, onTap }: { item: ClothingItem; onTap: () => void }) {
   return (
-    <button onClick={onTap} className="flex flex-col bg-white text-left w-full">
-      <div className="aspect-square w-full bg-[#F5F5F5] overflow-hidden relative">
+    <button onClick={onTap} className="flex flex-col bg-[#FBF9F6] text-left w-full">
+      <div className="aspect-square w-full bg-[#F0EBE3] overflow-hidden relative">
         {item.signed_url ? (
           <img
             src={item.signed_url}
@@ -97,10 +97,10 @@ export default function ClosetPage() {
   }, {});
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F5F5F5]">
+    <div className="flex flex-col min-h-screen bg-[#FBF9F6]">
 
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-white border-b border-[#E5E5E5]">
+      <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-[#FBF9F6] border-b border-[#EDE8E1]">
         <div>
           <h1 className="font-sans font-black text-base tracking-[0.15em] uppercase text-[#111111]">
             My Closet
@@ -120,7 +120,7 @@ export default function ClosetPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex overflow-x-auto scrollbar-hide bg-white border-b border-[#E5E5E5] px-4 gap-2 py-3">
+      <div className="flex overflow-x-auto scrollbar-hide bg-[#FBF9F6] border-b border-[#EDE8E1] px-4 gap-2 py-3">
         {FILTER_TABS.map(({ label, value }) => (
           <button
             key={value}
@@ -128,7 +128,7 @@ export default function ClosetPage() {
             className={`shrink-0 px-4 py-1.5 text-xs font-semibold tracking-wide border transition-none ${
               activeFilter === value
                 ? "bg-[#111111] text-white border-[#111111]"
-                : "bg-white text-[#111111] border-[#DDDDDD]"
+                : "bg-transparent text-[#111111] border-[#D4CCC4]"
             }`}
           >
             {label}
@@ -138,10 +138,10 @@ export default function ClosetPage() {
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-2 gap-px bg-[#E5E5E5] mt-px">
+        <div className="grid grid-cols-2 gap-px bg-[#EDE8E1] mt-px">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white">
-              <div className="aspect-square bg-[#F0F0F0] animate-pulse" />
+            <div key={i} className="bg-[#FBF9F6]">
+              <div className="aspect-square bg-[#EDE8E1] animate-pulse" />
               <div className="px-2 pt-2 pb-3 space-y-1">
                 <div className="h-3 w-20 bg-[#F0F0F0] animate-pulse" />
                 <div className="h-2.5 w-12 bg-[#F0F0F0] animate-pulse" />
@@ -163,7 +163,7 @@ export default function ClosetPage() {
             <>
               {/* Rarely worn row */}
               {rarelyWorn.length > 0 && (
-                <div className="bg-white border-b border-[#E5E5E5] px-5 pt-4 pb-5">
+                <div className="bg-[#FBF9F6] border-b border-[#EDE8E1] px-5 pt-4 pb-5">
                   <div className="flex items-baseline gap-2 mb-3">
                     <p className="text-xs font-black tracking-widest uppercase text-[#111111]">Rarely Worn</p>
                     <p className="text-xs text-[#999999]">{rarelyWorn.length} items</p>
@@ -176,7 +176,7 @@ export default function ClosetPage() {
                         className="shrink-0 flex flex-col"
                         style={{ width: 80 }}
                       >
-                        <div className="w-20 h-20 bg-[#F5F5F5] overflow-hidden">
+                        <div className="w-20 h-20 bg-[#F0EBE3] overflow-hidden">
                           {item.signed_url ? (
                             <img src={item.signed_url} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -202,7 +202,7 @@ export default function ClosetPage() {
                     </p>
                     <p className="text-xs text-[#999999]">{catItems.length} items</p>
                   </div>
-                  <div className="grid grid-cols-2 gap-px bg-[#E5E5E5]">
+                  <div className="grid grid-cols-2 gap-px bg-[#EDE8E1]">
                     {catItems.map((item) => (
                       <ItemTile key={item.id} item={item} onTap={() => setEditingItem(item)} />
                     ))}

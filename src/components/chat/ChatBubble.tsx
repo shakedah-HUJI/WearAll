@@ -40,7 +40,7 @@ export default function ChatBubble({
         ) : (
           <div className="flex items-start gap-2 max-w-[85%]">
             <MiaAvatar />
-            <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-[#F3F4F6] text-[#111111] text-sm leading-relaxed">
+            <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-[#F0EBE3] text-[#111111] text-sm leading-relaxed">
               {content.text}
             </div>
           </div>
@@ -51,7 +51,7 @@ export default function ChatBubble({
         <>
           <div className="flex items-start gap-2 max-w-[85%]">
             <MiaAvatar />
-            <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-[#F3F4F6] text-[#111111] text-sm leading-relaxed">
+            <div className="px-4 py-2.5 rounded-2xl rounded-tl-md bg-[#F0EBE3] text-[#111111] text-sm leading-relaxed">
               {content.questions[0]}
             </div>
           </div>

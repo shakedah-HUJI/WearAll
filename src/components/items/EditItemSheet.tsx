@@ -64,9 +64,9 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-      <div className="relative w-full max-w-[390px] bg-white max-h-[92vh] overflow-y-auto pb-8">
+      <div className="relative w-full max-w-[390px] bg-[#FBF9F6] max-h-[92vh] overflow-y-auto pb-8">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#E5E5E5]">
+        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#EDE8E1]">
           <h2 className="text-xs font-black tracking-widest uppercase text-[#111111]">Edit Item</h2>
           <button onClick={onClose} className="p-1 text-[#999999]">
             <X size={18} />
@@ -75,7 +75,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
 
         {/* Photo */}
         {item.signed_url && (
-          <div className="aspect-square overflow-hidden bg-[#F5F5F5] relative">
+          <div className="aspect-square overflow-hidden bg-[#F0EBE3] relative">
             <Image src={item.signed_url} alt="clothing item" fill className="object-cover" sizes="390px" />
           </div>
         )}
@@ -92,7 +92,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
                   className={`flex flex-col items-center gap-1.5 py-3 border text-[10px] font-semibold tracking-wide transition-none ${
                     category === c.value
                       ? "bg-[#111111] text-white border-[#111111]"
-                      : "bg-white text-[#111111] border-[#E5E5E5]"
+                      : "bg-[#FBF9F6] text-[#111111] border-[#EDE8E1]"
                   }`}
                 >
                   <span className="text-base">{c.emoji}</span>
@@ -111,7 +111,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
               value={subcategory}
               onChange={(e) => setSubcategory(e.target.value)}
               placeholder="e.g. blazer, jeans, sneakers"
-              className="w-full px-4 py-3 border border-[#E5E5E5] bg-white text-[#111111] placeholder-[#BBBBBB] focus:outline-none focus:border-[#111111] text-sm"
+              className="w-full px-4 py-3 border border-[#EDE8E1] bg-white/60 text-[#111111] placeholder-[#C0B4A6] focus:outline-none focus:border-[#1B2A4A] text-sm"
             />
           </div>
 
@@ -124,7 +124,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
               value={color}
               onChange={(e) => setColor(e.target.value)}
               placeholder="e.g. navy blue, cream, black"
-              className="w-full px-4 py-3 border border-[#E5E5E5] bg-white text-[#111111] placeholder-[#BBBBBB] focus:outline-none focus:border-[#111111] text-sm"
+              className="w-full px-4 py-3 border border-[#EDE8E1] bg-white/60 text-[#111111] placeholder-[#C0B4A6] focus:outline-none focus:border-[#1B2A4A] text-sm"
             />
           </div>
 
@@ -139,7 +139,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
                   className={`px-4 py-2 text-xs font-semibold border tracking-wide transition-none ${
                     formality === f.value
                       ? "bg-[#111111] text-white border-[#111111]"
-                      : "bg-white text-[#111111] border-[#E5E5E5]"
+                      : "bg-[#FBF9F6] text-[#111111] border-[#EDE8E1]"
                   }`}
                 >
                   {f.label}
@@ -159,7 +159,7 @@ export default function EditItemSheet({ item, onSave, onClose, onDelete }: EditI
                   className={`flex-1 py-2.5 text-xs font-semibold border tracking-wide transition-none ${
                     warmth === w.value
                       ? "bg-[#111111] text-white border-[#111111]"
-                      : "bg-white text-[#111111] border-[#E5E5E5]"
+                      : "bg-[#FBF9F6] text-[#111111] border-[#EDE8E1]"
                   }`}
                 >
                   {w.label}

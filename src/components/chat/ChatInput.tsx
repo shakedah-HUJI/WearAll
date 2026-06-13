@@ -41,13 +41,13 @@ export default function ChatInput({ onSubmit, disabled, placeholder }: ChatInput
   const hasText = value.trim().length > 0;
 
   return (
-    <div className="px-4 py-3 bg-white border-t border-[#E5E7EB]">
+    <div className="px-4 py-3 bg-[#FBF9F6] border-t border-[#EDE8E1]">
       <div
         className={cn(
-          "flex items-end gap-2 bg-[#F9FAFB] border rounded-2xl px-4 py-3 transition-all duration-150",
+          "flex items-end gap-2 bg-white/70 border rounded-2xl px-4 py-3 transition-all duration-150",
           hasText && !disabled
             ? "border-[#1B2A4A] ring-1 ring-[#1B2A4A]/20"
-            : "border-[#E5E7EB]"
+            : "border-[#EDE8E1]"
         )}
       >
         <textarea

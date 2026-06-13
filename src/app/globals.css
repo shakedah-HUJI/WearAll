@@ -2,14 +2,14 @@
 
 @theme inline {
   /* Design palette */
-  --color-background:      #F9FAFB;
+  --color-background:      #FBF9F6;
   --color-surface:         #FFFFFF;
   --color-primary-text:    #111111;
   --color-secondary-text:  #6B7280;
   --color-accent:          #111111;
   --color-accent-sage:     #A7B0A0;
   --color-accent-rose:     #9FAFC7;
-  --color-border:          #E5E7EB;
+  --color-border:          #EDE8E1;
 
   /* Typography */
   --font-sans:   var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
@@ -38,7 +38,7 @@
 html,
 body {
   height: 100%;
-  background-color: #F9FAFB;
+  background-color: #FBF9F6;
   color: #111111;
 }
 

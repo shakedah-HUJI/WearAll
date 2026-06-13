@@ -94,7 +94,7 @@ export default function ProfilePage() {
     .filter(({ count }) => count > 0);
 
   return (
-    <div className="flex flex-col min-h-screen bg-white pb-28">
+    <div className="flex flex-col min-h-screen bg-[#FBF9F6] pb-28">
 
       {/* Header */}
       <div className="flex items-center px-5 pt-14 pb-4">
@@ -105,7 +105,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Avatar + name */}
-      <div className="flex flex-col items-center py-6 border-b border-[#E5E7EB]">
+      <div className="flex flex-col items-center py-6 border-b border-[#EDE8E1]">
         <div className="relative mb-4">
           <button
             onClick={() => fileRef.current?.click()}
@@ -114,7 +114,7 @@ export default function ProfilePage() {
             {avatarUrl ? (
               <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#111111] to-[#333333] flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#1B2A4A] to-[#253E6B] flex items-center justify-center">
                 <span className="text-white font-semibold text-3xl leading-none">
                   {displayName ? displayName[0].toUpperCase() : "?"}
                 </span>
@@ -140,7 +140,7 @@ export default function ProfilePage() {
               onChange={e => setNameInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && saveName()}
               autoFocus
-              className="flex-1 text-center px-3 py-1.5 rounded-[10px] border border-[#E5E7EB] text-[#111111] text-sm focus:outline-none focus:ring-2 focus:ring-[#111111]"
+              className="flex-1 text-center px-3 py-1.5 rounded-[10px] border border-[#EDE8E1] text-[#111111] text-sm focus:outline-none focus:ring-2 focus:ring-[#1B2A4A]"
             />
             <button onClick={saveName} className="px-3 py-1.5 rounded-full bg-[#111111] text-white text-sm font-semibold">
               Save
@@ -160,20 +160,20 @@ export default function ProfilePage() {
 
         {isLoading ? (
           <div className="space-y-3">
-            <div className="h-20 bg-[#F9FAFB] rounded-2xl animate-pulse" />
-            <div className="h-16 bg-[#F9FAFB] rounded-2xl animate-pulse" />
+            <div className="h-20 bg-[#EDE8E1] rounded-2xl animate-pulse" />
+            <div className="h-16 bg-[#EDE8E1] rounded-2xl animate-pulse" />
           </div>
         ) : total === 0 ? (
           <p className="text-sm text-[#6B7280]">Add clothes to your closet to see stats here.</p>
         ) : (
           <>
             {/* Utilization */}
-            <div className="bg-[#F9FAFB] rounded-2xl p-4 mb-3 border border-[#E5E7EB]">
+            <div className="bg-white rounded-2xl p-4 mb-3 border border-[#EDE8E1]" style={{ boxShadow: "0 2px 12px rgba(17,17,17,0.05)" }}>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-semibold text-[#111111]">Utilization</p>
                 <span className="text-xl font-bold text-[#111111]">{utilization}%</span>
               </div>
-              <div className="h-2 bg-[#E5E7EB] rounded-full overflow-hidden mb-2.5">
+              <div className="h-2 bg-[#EDE8E1] rounded-full overflow-hidden mb-2.5">
                 <div
                   className="h-full bg-gradient-to-r from-[#111111] to-[#333333] rounded-full transition-all duration-700"
                   style={{ width: `${utilization}%` }}
@@ -192,7 +192,7 @@ export default function ProfilePage() {
                 { label: "Wears", value: totalWears },
                 { label: "Avg / item", value: avgWears },
               ].map(({ label, value }) => (
-                <div key={label} className="bg-[#F9FAFB] rounded-2xl p-3 text-center border border-[#E5E7EB]">
+                <div key={label} className="bg-white rounded-2xl p-3 text-center border border-[#EDE8E1]" style={{ boxShadow: "0 2px 12px rgba(17,17,17,0.05)" }}>
                   <p className="text-xl font-bold text-[#111111] leading-tight">{value}</p>
                   <p className="text-[10px] text-[#6B7280] mt-0.5 font-medium uppercase tracking-wide leading-tight">{label}</p>
                 </div>
@@ -201,8 +201,8 @@ export default function ProfilePage() {
 
             {/* Most worn */}
             {mostWorn && (mostWorn.wear_count ?? 0) > 0 && (
-              <div className="flex items-center gap-3 bg-[#F9FAFB] rounded-2xl p-3 mb-3 border border-[#E5E7EB]">
-                <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#E5E7EB] shrink-0">
+              <div className="flex items-center gap-3 bg-white rounded-2xl p-3 mb-3 border border-[#EDE8E1]" style={{ boxShadow: "0 2px 12px rgba(17,17,17,0.05)" }}>
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-[#EDE8E1] shrink-0">
                   {mostWorn.signed_url ? (
                     <img src={mostWorn.signed_url} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                   {catCounts.map(({ cat, count }) => (
                     <div key={cat} className="flex items-center gap-3">
                       <p className="text-xs text-[#111111] font-medium w-20 shrink-0">{CATEGORY_LABELS[cat]}</p>
-                      <div className="flex-1 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
+                      <div className="flex-1 h-1.5 bg-[#EDE8E1] rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-[#111111] to-[#333333] rounded-full"
                           style={{ width: `${Math.round((count / total) * 100)}%` }}

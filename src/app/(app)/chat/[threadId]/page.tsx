@@ -80,7 +80,7 @@ export default function ChatPage({ params }: PageProps) {
     );
     return (
       <div className="flex flex-col min-h-screen">
-        <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#E5E7EB]">
+        <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#EDE8E1]">
           <button
             onClick={() => setSelectedOutfit(null)}
             className="mr-3 p-1 -ml-1"
@@ -103,7 +103,7 @@ export default function ChatPage({ params }: PageProps) {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#E5E7EB] shrink-0">
+      <div className="flex items-center px-5 pt-14 pb-4 border-b border-[#EDE8E1] shrink-0">
         <button
           onClick={() => router.push("/home")}
           className="mr-3 p-1 -ml-1"
