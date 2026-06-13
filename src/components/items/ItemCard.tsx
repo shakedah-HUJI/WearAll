@@ -105,7 +105,7 @@ export default function ItemCard({ item, onDelete, className }: ItemCardProps) {
               className="w-2.5 h-2.5 rounded-full border border-white/60 shrink-0"
               style={{ backgroundColor: colorToHex(item.primary_color) }}
             />
-            {item.pattern === "striped" && item.secondary_colors?.[0]
+            {item.secondary_colors?.[0]
               ? `${item.primary_color} & ${item.secondary_colors[0]}`
               : item.primary_color}
           </span>
