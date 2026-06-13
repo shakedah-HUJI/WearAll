@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { tagClothingItem } from "@/lib/claude/tagger";
-import { TagResult } from "@/types/item";
 import { randomUUID } from "crypto";
 
 const MAX_SIZE = 20 * 1024 * 1024;
@@ -39,86 +38,6 @@ async function removeBackground(imageBuffer: Buffer): Promise<Buffer> {
   }
 }
 
-// ── Catalog image download ────────────────────────────────────────────────────
-// Downloads an external image URL server-side so we can store it in Supabase
-// instead of linking to a third-party host that may rotate or expire the URL.
-async function downloadImage(url: string): Promise<Buffer | null> {
-  try {
-    const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; WearAll/1.0)" },
-      redirect: "follow",
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!res.ok) {
-      console.error(`downloadImage: HTTP ${res.status} for ${url}`);
-      return null;
-    }
-    const ct = res.headers.get("content-type") ?? "";
-    if (!ct.startsWith("image/")) {
-      console.error(`downloadImage: unexpected content-type "${ct}" for ${url}`);
-      return null;
-    }
-    const buf = Buffer.from(await res.arrayBuffer());
-    console.log(`downloadImage: downloaded ${buf.byteLength} bytes from ${url}`);
-    return buf;
-  } catch (err) {
-    console.error("downloadImage failed:", err);
-    return null;
-  }
-}
-
-// ── Catalog image search ──────────────────────────────────────────────────────
-
-// Build a precise search query from AI tagger results — no extra API call needed.
-function buildSearchQuery(tags: TagResult | null): string {
-  if (!tags) return "";
-  const parts: string[] = [];
-  if (tags.primary_color && tags.primary_color !== "unknown") parts.push(tags.primary_color);
-  if (tags.secondary_colors?.length) parts.push(tags.secondary_colors[0]);
-  if (tags.pattern && tags.pattern !== "solid") parts.push(tags.pattern);
-  if (tags.subcategory) parts.push(tags.subcategory);
-  parts.push("product photo white background");
-  return parts.join(" ");
-}
-
-// Serper.dev Google Image Search — 2,500 free queries/month, no billing required.
-// Returns the best matching professional catalog image URL, or null on failure.
-async function searchCatalogImage(query: string): Promise<string | null> {
-  const apiKey = process.env.SERPER_API_KEY;
-  if (!apiKey) {
-    console.log("catalog search: no SERPER_API_KEY — skipping");
-    return null;
-  }
-  try {
-    const res = await fetch("https://google.serper.dev/images", {
-      method: "POST",
-      headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify({ q: query, num: 5 }),
-    });
-    if (!res.ok) {
-      console.error(`Serper search ${res.status}:`, await res.text().catch(() => ""));
-      return null;
-    }
-
-    const json = await res.json();
-    const images: Array<{ imageUrl: string }> = json.images ?? [];
-    if (!images.length) {
-      console.log(`catalog search: no results for "${query}"`);
-      return null;
-    }
-
-    // Prefer a standard image format; skip GIFs, SVGs, tiny icons
-    const pick =
-      images.find((i) => /\.(jpe?g|png|webp)(\?|$)/i.test(i.imageUrl)) ?? images[0];
-
-    console.log(`catalog search: found "${pick.imageUrl}" for query "${query}"`);
-    return pick.imageUrl;
-  } catch (err) {
-    console.error("searchCatalogImage failed:", err);
-    return null;
-  }
-}
-
 // ── Upload handler ────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -150,10 +69,10 @@ export async function POST(request: NextRequest) {
     try {
       const rawBuffer = Buffer.from(await file.arrayBuffer());
 
-      // Step 1 — AI background removal
+      // Step 1 — AI background removal (user's own photo, white background)
       const cleanBuffer = await removeBackground(rawBuffer);
 
-      // Step 2 — storage upload + AI tagging run in parallel (saves 2-3 s per item)
+      // Step 2 — storage upload + AI tagging run in parallel
       const storagePath = `${user.id}/${randomUUID()}.jpg`;
       const [storageResult, tags] = await Promise.all([
         serviceClient.storage.from("wardrobe").upload(storagePath, cleanBuffer, {
@@ -167,35 +86,12 @@ export async function POST(request: NextRequest) {
 
       if (storageResult.error) throw new Error(storageResult.error.message);
 
-      // Step 3 — search for professional catalog image and download it into Supabase
-      // (storing the raw external URL would break Next.js Image and rot when sites rotate URLs)
-      const searchQuery = buildSearchQuery(tags);
-      const catalogUrl = searchQuery ? await searchCatalogImage(searchQuery) : null;
-
-      let finalPath = storagePath;
-      if (catalogUrl) {
-        const catalogBuffer = await downloadImage(catalogUrl);
-        if (catalogBuffer) {
-          const catalogPath = `${user.id}/${randomUUID()}.jpg`;
-          const { error: catErr } = await serviceClient.storage
-            .from("wardrobe")
-            .upload(catalogPath, catalogBuffer, { contentType: "image/jpeg", upsert: false });
-          if (!catErr) {
-            finalPath = catalogPath;
-            // Remove the now-unused bg-removed original to keep storage clean
-            await serviceClient.storage.from("wardrobe").remove([storagePath]);
-          } else {
-            console.error("catalog upload to Supabase failed:", catErr.message);
-          }
-        }
-      }
-
-      // Step 4 — insert DB record
+      // Step 3 — insert DB record
       const { data: item, error: dbError } = await serviceClient
         .from("items")
         .insert({
           user_id: user.id,
-          image_url: finalPath,
+          image_url: storagePath,
           category:         tags?.category         ?? "other",
           subcategory:      tags?.subcategory       ?? null,
           primary_color:    tags?.primary_color     ?? colorHints[fileIndex] ?? null,
