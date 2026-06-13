@@ -80,45 +80,38 @@ function buildSearchQuery(tags: TagResult | null): string {
   return parts.join(" ");
 }
 
-// Google Custom Search API — 100 free queries/day.
+// Serper.dev Google Image Search — 2,500 free queries/month, no billing required.
 // Returns the best matching professional catalog image URL, or null on failure.
 async function searchCatalogImage(query: string): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
-  const cx = process.env.GOOGLE_SEARCH_CX;
-  if (!apiKey || !cx) {
-    console.log("catalog search: no API keys — skipping");
+  const apiKey = process.env.SERPER_API_KEY;
+  if (!apiKey) {
+    console.log("catalog search: no SERPER_API_KEY — skipping");
     return null;
   }
   try {
-    const url = new URL("https://www.googleapis.com/customsearch/v1");
-    url.searchParams.set("key", apiKey);
-    url.searchParams.set("cx", cx);
-    url.searchParams.set("q", query);
-    url.searchParams.set("searchType", "image");
-    url.searchParams.set("imgType", "photo");
-    url.searchParams.set("imgSize", "large");
-    url.searchParams.set("safe", "active");
-    url.searchParams.set("num", "5");
-
-    const res = await fetch(url.toString());
+    const res = await fetch("https://google.serper.dev/images", {
+      method: "POST",
+      headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ q: query, num: 5 }),
+    });
     if (!res.ok) {
-      console.error(`Google search ${res.status}:`, await res.text().catch(() => ""));
+      console.error(`Serper search ${res.status}:`, await res.text().catch(() => ""));
       return null;
     }
 
     const json = await res.json();
-    const items: Array<{ link: string }> = json.items ?? [];
-    if (!items.length) {
+    const images: Array<{ imageUrl: string }> = json.images ?? [];
+    if (!images.length) {
       console.log(`catalog search: no results for "${query}"`);
       return null;
     }
 
     // Prefer a standard image format; skip GIFs, SVGs, tiny icons
     const pick =
-      items.find((i) => /\.(jpe?g|png|webp)(\?|$)/i.test(i.link)) ?? items[0];
+      images.find((i) => /\.(jpe?g|png|webp)(\?|$)/i.test(i.imageUrl)) ?? images[0];
 
-    console.log(`catalog search: found "${pick.link}" for query "${query}"`);
-    return pick.link;
+    console.log(`catalog search: found "${pick.imageUrl}" for query "${query}"`);
+    return pick.imageUrl;
   } catch (err) {
     console.error("searchCatalogImage failed:", err);
     return null;
