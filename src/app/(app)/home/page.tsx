@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useWeather } from "@/hooks/useWeather";
 import { createClient } from "@/lib/supabase/client";
+import QuickStartCards from "@/components/chat/QuickStartCards";
 
 function weatherEmoji(condition: string): string {
   if (condition.includes("clear")) return "☀️";
@@ -230,15 +231,16 @@ export default function HomePage() {
           </>
         )}
 
-        {/* CTA */}
+        {/* Quick Start — scenario cards to kick off a Mia session */}
         <div className="mt-auto pt-4">
-          <button
-            onClick={() => router.push("/chat/new")}
-            className="w-full py-[18px] bg-[#111111] text-white text-[10px] font-black tracking-[0.24em] uppercase active:scale-[0.99] transition-all"
-            style={{ boxShadow: "0 8px 32px rgba(17,17,17,0.20)" }}
-          >
-            Chat with Mia →
-          </button>
+          <p className="text-[10px] text-[#B0A898] font-semibold tracking-[0.16em] uppercase mb-3">
+            Start with Mia
+          </p>
+          <QuickStartCards
+            onSelect={(msg) =>
+              router.push(`/chat/new?q=${encodeURIComponent(msg)}`)
+            }
+          />
         </div>
 
       </div>

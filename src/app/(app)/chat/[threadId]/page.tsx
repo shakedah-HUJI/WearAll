@@ -9,6 +9,7 @@ import { useItems } from "@/hooks/useItems";
 import { useToast } from "@/components/ui/Toast";
 import ChatBubble from "@/components/chat/ChatBubble";
 import ChatInput from "@/components/chat/ChatInput";
+import QuickStartCards from "@/components/chat/QuickStartCards";
 import Spinner from "@/components/ui/Spinner";
 import OutfitDetail from "@/components/outfit/OutfitDetail";
 import { OutfitSuggestion } from "@/types/chat";
@@ -118,8 +119,8 @@ export default function ChatPage({ params }: PageProps) {
 
       {/* Message thread */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
-        {messages.length === 0 && !isLoading && (
-          <div className="flex flex-col items-center justify-center h-full text-center py-16 gap-4">
+        {messages.length === 0 && !isLoading && !(isNew && initialQuery) && (
+          <div className="flex flex-col items-center min-h-full text-center pt-12 pb-6 gap-4">
             <div className="w-16 h-16 rounded-full bg-[#1B2A4A] flex items-center justify-center shadow-[0_4px_16px_rgba(27,42,74,0.2)]">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 3C12 3 15 3 15 6C15 7.7 13.7 9 12 9" />
@@ -134,6 +135,12 @@ export default function ChatPage({ params }: PageProps) {
             <p className="text-[#6B7280] text-sm max-w-[200px] leading-relaxed">
               Tell me your plans and I'll build looks from your closet.
             </p>
+            <div className="w-full mt-2">
+              <p className="text-[10px] text-[#B0A898] font-semibold tracking-[0.16em] uppercase mb-3">
+                Or pick a scenario
+              </p>
+              <QuickStartCards onSelect={sendMessage} />
+            </div>
           </div>
         )}
 
