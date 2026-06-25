@@ -1,24 +1,29 @@
 import { useState } from 'react'
 import BottomNav from './components/BottomNav'
+import HomePage from './pages/HomePage'
 import WardrobePage from './pages/WardrobePage'
 import StylistPage from './pages/StylistPage'
+import ProfilePage from './pages/ProfilePage'
 
-type Tab = 'wardrobe' | 'stylist'
+type Tab = 'home' | 'closet' | 'chat' | 'profile'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('wardrobe')
+  const [activeTab, setActiveTab] = useState<Tab>('home')
+  const [chatPrefill, setChatPrefill] = useState<string | undefined>()
+
+  function navigateTo(tab: string, prefill?: string) {
+    setActiveTab(tab as Tab)
+    if (prefill) setChatPrefill(prefill)
+  }
 
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <span className="app-logo">WearAll</span>
-      </header>
-
       <main className="app-content">
-        {activeTab === 'wardrobe' && <WardrobePage />}
-        {activeTab === 'stylist' && <StylistPage />}
+        {activeTab === 'home'    && <HomePage onNavigate={navigateTo} />}
+        {activeTab === 'closet'  && <WardrobePage />}
+        {activeTab === 'chat'    && <StylistPage prefill={chatPrefill} onPrefillUsed={() => setChatPrefill(undefined)} />}
+        {activeTab === 'profile' && <ProfilePage />}
       </main>
-
       <BottomNav active={activeTab} onChange={setActiveTab} />
     </div>
   )

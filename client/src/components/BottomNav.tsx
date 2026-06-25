@@ -1,27 +1,30 @@
-type Tab = 'wardrobe' | 'stylist'
+type Tab = 'home' | 'closet' | 'chat' | 'profile'
 
 interface Props {
   active: Tab
   onChange: (tab: Tab) => void
 }
 
+const tabs: { id: Tab; label: string; icon: string }[] = [
+  { id: 'home',    label: 'Home',    icon: '⌂' },
+  { id: 'closet',  label: 'Closet',  icon: '◫' },
+  { id: 'chat',    label: 'Chat',    icon: '✦' },
+  { id: 'profile', label: 'Profile', icon: '◯' },
+]
+
 export default function BottomNav({ active, onChange }: Props) {
   return (
     <nav className="bottom-nav">
-      <button
-        className={`nav-item ${active === 'wardrobe' ? 'nav-item--active' : ''}`}
-        onClick={() => onChange('wardrobe')}
-      >
-        <span className="nav-icon">👗</span>
-        <span className="nav-label">Wardrobe</span>
-      </button>
-      <button
-        className={`nav-item ${active === 'stylist' ? 'nav-item--active' : ''}`}
-        onClick={() => onChange('stylist')}
-      >
-        <span className="nav-icon">✨</span>
-        <span className="nav-label">Mia</span>
-      </button>
+      {tabs.map(t => (
+        <button
+          key={t.id}
+          className={`nav-item ${active === t.id ? 'nav-item--active' : ''}`}
+          onClick={() => onChange(t.id)}
+        >
+          <span className="nav-icon">{t.icon}</span>
+          <span className="nav-label">{t.label}</span>
+        </button>
+      ))}
     </nav>
   )
 }

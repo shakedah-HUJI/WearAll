@@ -2,10 +2,22 @@ import { useState, useEffect, useRef } from 'react'
 import { useStylist } from '../hooks/useStylist'
 import ChatBubble from '../components/ChatBubble'
 
-export default function StylistPage() {
+interface Props {
+  prefill?: string
+  onPrefillUsed?: () => void
+}
+
+export default function StylistPage({ prefill, onPrefillUsed }: Props) {
   const { messages, loading, sendMessage } = useStylist()
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (prefill) {
+      sendMessage(prefill)
+      onPrefillUsed?.()
+    }
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -21,6 +33,14 @@ export default function StylistPage() {
 
   return (
     <div className="chat">
+      <div className="chat-header">
+        <div className="chat-header__avatar">M</div>
+        <div>
+          <p className="chat-header__name">Mia</p>
+          <p className="chat-header__status">AI Stylist</p>
+        </div>
+      </div>
+
       <div className="chat-thread">
         {messages.map(msg => (
           <ChatBubble key={msg.id} message={msg} />
