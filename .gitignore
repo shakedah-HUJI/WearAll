@@ -1,7 +1,13 @@
 # Dependencies
 node_modules/
-client/node_modules/
-server/node_modules/
+
+# Next.js
+.next/
+out/
+
+# Build output
+dist/
+build/
 
 # Environment variables
 .env
@@ -9,10 +15,6 @@ server/node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Build output
-dist/
-build/
 
 # Logs
 npm-debug.log*
@@ -30,3 +32,7 @@ Thumbs.db
 *.ntvs*
 *.njsproj
 *.sln
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
