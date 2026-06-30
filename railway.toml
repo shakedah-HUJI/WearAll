@@ -1,0 +1,5 @@
+[build]
+  buildCommand = "cd client && npm ci && npm run build"
+
+[deploy]
+  startCommand = "cd client && npx serve dist -l $PORT --single"
