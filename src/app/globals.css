@@ -166,7 +166,10 @@ body {
     box-shadow: 1px 0 0 rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.08);
   }
 
-  /* Screen area — clips the app with rounded corners */
+  /* Screen area — clips the app with rounded corners.
+     transform: translateZ(0) makes this element the containing block for
+     position:fixed descendants, so the bottom nav anchors here instead of
+     the browser viewport. */
   .iphone-screen {
     width: 100% !important;
     max-width: 100% !important;
@@ -176,17 +179,7 @@ body {
     overflow: hidden;
     box-shadow: none !important;
     position: relative;
-  }
-
-  /* Keep bottom nav inside the phone frame instead of fixed to the viewport */
-  .iphone-screen nav {
-    position: absolute !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    transform: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    transform: translateZ(0);
   }
 
   /* Hide the scrollbar inside the phone */
