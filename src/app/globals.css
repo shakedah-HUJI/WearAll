@@ -60,3 +60,120 @@ body {
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 8px);
 }
+
+/* ── iPhone 15 Pro Frame (desktop only) ──────────────────────────────────── */
+
+/* On mobile the wrapper is invisible — children render as if frame isn't there */
+.iphone-frame { display: contents; }
+.iphone-btn   { display: none; }
+
+@media (min-width: 500px) {
+
+  .iphone-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(ellipse at 50% 40%, #1a1520 0%, #0a090c 70%);
+    overflow: hidden;
+  }
+
+  /* Phone body */
+  .iphone-frame {
+    display: block;
+    position: relative;
+
+    --phone-h: min(852px, calc(100vh - 40px));
+    --phone-w: calc(var(--phone-h) / 2.168);
+
+    width:  var(--phone-w);
+    height: var(--phone-h);
+
+    background: linear-gradient(170deg, #2e2c30 0%, #1c1c1e 35%, #141416 100%);
+    border-radius: calc(var(--phone-w) * 0.136);
+
+    box-shadow:
+      0 0 0 0.5px rgba(255,255,255,0.20),
+      0 0 0 1.5px #000,
+      0 0 0 2.5px rgba(255,255,255,0.06),
+      0 50px 100px rgba(0,0,0,0.90),
+      0 15px 40px  rgba(0,0,0,0.60),
+      inset 0 1px 0  rgba(255,255,255,0.13),
+      inset 0 0 0 1px rgba(255,255,255,0.04);
+
+    padding:
+      calc(var(--phone-h) * 0.018)
+      calc(var(--phone-w) * 0.022)
+      calc(var(--phone-h) * 0.016);
+  }
+
+  /* Dynamic Island pill */
+  .iphone-frame::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--phone-h) * 0.019);
+    left: 50%;
+    transform: translateX(-50%);
+    width:  calc(var(--phone-w) * 0.308);
+    height: calc(var(--phone-h) * 0.040);
+    background: #000;
+    border-radius: 100px;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  /* Home indicator bar */
+  .iphone-frame::after {
+    content: '';
+    position: absolute;
+    bottom: calc(var(--phone-h) * 0.011);
+    left: 50%;
+    transform: translateX(-50%);
+    width:  calc(var(--phone-w) * 0.34);
+    height: 5px;
+    background: rgba(255,255,255,0.28);
+    border-radius: 100px;
+    z-index: 200;
+    pointer-events: none;
+  }
+
+  /* Side buttons */
+  .iphone-btn {
+    display: block;
+    position: absolute;
+    background: linear-gradient(90deg, #222224, #2e2e30);
+    z-index: 0;
+  }
+
+  .iphone-silent,
+  .iphone-vol-up,
+  .iphone-vol-down {
+    left: calc(var(--phone-w) * -0.014);
+    width: calc(var(--phone-w) * 0.026);
+    border-radius: 3px 0 0 3px;
+    box-shadow: -1px 0 0 rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .iphone-silent   { top: calc(var(--phone-h) * 0.163); height: calc(var(--phone-h) * 0.044); }
+  .iphone-vol-up   { top: calc(var(--phone-h) * 0.232); height: calc(var(--phone-h) * 0.074); }
+  .iphone-vol-down { top: calc(var(--phone-h) * 0.322); height: calc(var(--phone-h) * 0.074); }
+
+  .iphone-power {
+    right: calc(var(--phone-w) * -0.014);
+    top:   calc(var(--phone-h) * 0.268);
+    width: calc(var(--phone-w) * 0.026);
+    height: calc(var(--phone-h) * 0.130);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 1px 0 0 rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  /* Screen area — clips the app with rounded corners */
+  .iphone-screen {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    border-radius: calc(var(--phone-w) * 0.115);
+    overflow: hidden;
+    box-shadow: none !important;
+  }
+}

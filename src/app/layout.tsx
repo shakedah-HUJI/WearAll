@@ -39,10 +39,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${dmSans.variable} ${playfair.variable} h-full antialiased`}>
-      <body className="h-full bg-[#F9FAFB] flex justify-center">
-        {/* Mobile shell: constrained to 390px on desktop, full-screen on mobile */}
-        <div className="w-full max-w-[390px] min-h-full bg-[#F9FAFB] relative flex flex-col shadow-[0_0_60px_rgba(0,0,0,0.08)]">
-          {children}
+      <body className="h-full bg-[#FBF9F6] iphone-body">
+        <div className="iphone-frame">
+          {/* Side buttons — visible only on desktop via CSS */}
+          <div className="iphone-btn iphone-silent" />
+          <div className="iphone-btn iphone-vol-up" />
+          <div className="iphone-btn iphone-vol-down" />
+          <div className="iphone-btn iphone-power" />
+          {/* App shell */}
+          <div className="iphone-screen w-full max-w-[390px] min-h-full bg-[#FBF9F6] relative flex flex-col">
+            {children}
+          </div>
         </div>
       </body>
     </html>
