@@ -175,5 +175,25 @@ body {
     border-radius: calc(var(--phone-w) * 0.115);
     overflow: hidden;
     box-shadow: none !important;
+    position: relative;
+  }
+
+  /* Keep bottom nav inside the phone frame instead of fixed to the viewport */
+  .iphone-screen nav {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Hide the scrollbar inside the phone */
+  .iphone-screen main {
+    scrollbar-width: none;
+  }
+  .iphone-screen main::-webkit-scrollbar {
+    display: none;
   }
 }
