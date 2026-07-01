@@ -28,8 +28,8 @@ export async function GET() {
   const itemsWithUrls = await Promise.all(
     items.map(async (item) => {
       try {
-        // External catalog URL (from web search) — use directly, no signing needed
-        if (item.image_url?.startsWith("http")) {
+        // External catalog URL or local public path — use directly, no signing needed
+        if (item.image_url?.startsWith("http") || item.image_url?.startsWith("/")) {
           return { ...item, signed_url: item.image_url };
         }
         // Supabase storage path — generate a 1-hour signed URL
