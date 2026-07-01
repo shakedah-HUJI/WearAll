@@ -1,6 +1,24 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 import { OutfitSuggestion } from "@/types/chat";
 import { ClothingItem } from "@/types/item";
+
+function ItemThumb({ item }: { item: ClothingItem }) {
+  const [error, setError] = useState(false);
+  return (
+    <div className="flex-1 aspect-square rounded-[12px] overflow-hidden bg-[#E5E7EB] relative">
+      {item.signed_url && !error ? (
+        <img
+          src={item.signed_url}
+          alt={item.subcategory ?? item.category}
+          onError={() => setError(true)}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : null}
+    </div>
+  );
+}
 
 interface OutfitCardProps {
   outfit: OutfitSuggestion;
@@ -17,20 +35,7 @@ export default function OutfitCard({ outfit, items, onWear, onViewOutfit }: Outf
       {/* Photo strip */}
       <div className="flex gap-1 p-2">
         {previewItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex-1 aspect-square rounded-[12px] overflow-hidden bg-[#E5E7EB] relative"
-          >
-            {item.signed_url && (
-              <Image
-                src={item.signed_url}
-                alt={item.subcategory ?? item.category}
-                fill
-                className="object-cover"
-                sizes="100px"
-              />
-            )}
-          </div>
+          <ItemThumb key={item.id} item={item} />
         ))}
         {items.length > 3 && (
           <div className="flex-shrink-0 aspect-square w-[30%] rounded-[12px] bg-[#E5E7EB] flex items-center justify-center">
