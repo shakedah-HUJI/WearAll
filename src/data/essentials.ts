@@ -96,8 +96,8 @@ export const ESSENTIALS: EssentialTemplate[] = [
   },
   // ── BOTTOMS ───────────────────────────────────────────────────────────────
   {
-    label: "Next Denim Blue Jeans",
-    image_url: "https://xcdn.next.co.uk/common/items/default/default/itemimages/3_4Ratio/product/lge/434451s5.jpg?im=Resize,width=480",
+    label: "Levi's 501 Original Blue Jeans",
+    image_url: "https://lsco.scene7.com/is/image/lsco/005010114-front-pdp?fmt=jpeg&qlt=70&resMode=sharp2&wid=1000&hei=1000",
     category: "bottom",
     subcategory: "jeans",
     primary_color: "blue",
@@ -107,11 +107,11 @@ export const ESSENTIALS: EssentialTemplate[] = [
     warmth: "medium",
     season: ["spring", "summer", "fall", "winter"],
     material_guess: "denim",
-    notes: "Classic mid blue denim jeans from Next",
+    notes: "Levi's 501 Original mid-blue straight jeans",
   },
   {
-    label: "Next Light Blue Denim Jeans",
-    image_url: "https://xcdn.next.co.uk/common/items/default/default/itemimages/3_4Ratio/product/lge/434687s5.jpg?im=Resize,width=480",
+    label: "Levi's 501 Light Wash Jeans",
+    image_url: "https://lsco.scene7.com/is/image/lsco/005010217-front-pdp?fmt=jpeg&qlt=70&resMode=sharp2&wid=1000&hei=1000",
     category: "bottom",
     subcategory: "jeans",
     primary_color: "light blue",
@@ -121,7 +121,7 @@ export const ESSENTIALS: EssentialTemplate[] = [
     warmth: "medium",
     season: ["spring", "summer", "fall", "winter"],
     material_guess: "denim",
-    notes: "Light wash blue denim jeans from Next",
+    notes: "Levi's 501 light wash straight jeans",
   },
   // ── ADD MORE ITEMS BELOW ──────────────────────────────────────────────────
   // {
