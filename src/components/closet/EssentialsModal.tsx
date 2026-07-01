@@ -14,6 +14,8 @@ const TABS: { label: string; value: ItemCategory | "all" }[] = [
 ];
 
 function proxyUrl(raw: string): string {
+  // Local paths (starting with /) are served directly — no proxy needed.
+  if (raw.startsWith("/")) return raw;
   return `/api/proxy/image?url=${encodeURIComponent(raw)}`;
 }
 
