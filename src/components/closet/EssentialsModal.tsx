@@ -14,7 +14,7 @@ const TABS: { label: string; value: ItemCategory | "all" }[] = [
 ];
 
 function proxyUrl(raw: string): string {
-  return `https://images.weserv.nl/?url=${encodeURIComponent(raw)}&w=400&output=webp&fit=contain&bg=FAFAF8`;
+  return `/api/proxy/image?url=${encodeURIComponent(raw)}`;
 }
 
 function EssentialTile({
